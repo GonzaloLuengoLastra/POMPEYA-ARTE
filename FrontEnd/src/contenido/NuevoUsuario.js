@@ -2,8 +2,8 @@ import * as React from 'react';
 import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
-import { useState } from 'react';
-import Axios from 'axios';
+import { useState, useEffect } from 'react';
+import Axios from "axios";
 
 export default function NuevoUsuario() {
   
@@ -14,11 +14,23 @@ export default function NuevoUsuario() {
     const [Direccion, setDireccion] = useState("");
     const [NombreUsuario, setNombreUsuario] = useState("");
     const [Email, setEmail] = useState("");
-    const [Contraseña, setContraseña] = useState("");
-    const [Provilegio, setPrivilegio] = useState(0);
+    const [Contrasena, setContrasena] = useState("");
+    const [Privilegio, setPrivilegio] = useState(1);    
 
     const addUsuario = ()=>{
-      alert(nombre);
+      Axios.post("http://localhost:3001/create", {
+        rut:Rut,
+        nombre:nombre,
+        apellido: Apellido,
+        telefono: Telefono,
+        direccion: Direccion,
+        nombreUsuario: NombreUsuario,
+        email: Email,
+        contrasena: Contrasena,
+        privilegio: Privilegio
+      }).then(()=>{
+        console.log("Usuario registrado");
+      });
     }
 
     return (
@@ -51,7 +63,7 @@ export default function NuevoUsuario() {
   </div>     
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+    <form className="form-neon" autoComplete="off">
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información personal</legend>
         <div className="container-fluid">
@@ -142,7 +154,7 @@ export default function NuevoUsuario() {
               <div className="form-group">
                 <label htmlFor="usuario_clave_1" className="bmd-label-floating">Contraseña</label>
                 <input onChange={(event)=>{
-                    setContraseña(event.target.value);
+                    setContrasena(event.target.value);
                  }}
                   type="password" className="form-control" name="usuario_clave_1_reg" id="usuario_clave_1" pattern="[a-zA-Z0-9$@.-]{7,100}" maxLength={100} required 
             
@@ -168,12 +180,15 @@ export default function NuevoUsuario() {
               <p><span className="badge badge-success">Edición</span> Permisos para registrar y actualizar</p>
               <p><span className="badge badge-dark">Artista</span> Solo permisos para registrar</p>
               <div className="form-group">
-                <select className="form-control" name="usuario_privilegio_reg" >
-                  <option value selected disabled>Seleccione una opción</option>
-                  <option value={1}>Administrador</option>
-                  <option value={2}>Editor</option>
-                  <option value={3}>Artista</option>
+                <select value={Privilegio} onChange={(e) => {
+                  const selectedPrivilegio = e.target.value;
+                  setPrivilegio(selectedPrivilegio);
+                }} className="form-control" name="usuario_privilegio_reg" >
+                  <option value={1} >Administrador</option>
+                  <option value={2} >Editor</option>
+                  <option value={3} >Artista</option>
                 </select>
+                
               </div>
             </div>
           </div>
@@ -182,7 +197,7 @@ export default function NuevoUsuario() {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button onClick={monstrarDatos} type="submit" className="btn btn-raised btn-info btn-sm" ><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button onClick={addUsuario} type="submit" className="btn btn-raised btn-info btn-sm" ><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>
