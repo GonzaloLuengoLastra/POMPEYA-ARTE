@@ -2,24 +2,40 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import { useNavigate } from 'react-router-dom';
+import Axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default function NuevoPrecio () {
 
   const[valor,setValor]=React.useState('')
+  const navigate = useNavigate();
 
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const precio={valor}
-    console.log(precio)
-    fetch("http://localhost:8080/precio",{
-      method:"POST",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(precio)
-
-    }).then(()=>{
-      console.log("Precio añadido")
+  const guardarPrecio = (val) =>{
+    Swal.fire({
+      title: 'Guardar Precio',
+      text: "¿Desea guardar el precio en el sistema?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Precio guardado!', '', 'success')
+        Axios.post("http://localhost:3001/precios", {
+        cantida_precio:valor
+      }).then(()=>{
+        console.log("Precio registrado");
+        
+      });
+      navigate("/ListarPrecios");
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
     })
-  } 
+  }
+
     return (
       <div>
         <Header/>
@@ -67,7 +83,7 @@ export default function NuevoPrecio () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button type='button' onClick={guardarPrecio} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

@@ -1,25 +1,42 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from "sweetalert2";
 
 export default function ListarSalas () {
  
-  const[salas,setSalas]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/salas")
-    .then(res=>res.json())
-    .then((result)=>{
-      setSalas(result);
-    }
-  )
-  },[])
+  const [salas,setSalas]= useState([]);
 
-  const deleteSalas = async (id) => {
-    await axios.delete(`http://localhost:8080/editt/${id}`);
-  };
+  const getSalas = ()=>{
+    Axios.get("http://localhost:3001/getSalas").then((response)=>{
+      setSalas(response.data); 
+    });
+  }
 
+  const deleteSalas = (val) =>{
+    Swal.fire({
+      title: 'Eliminar Sala',
+      text: "¿Desea eliminar la sala "+val.nombre_sala+" del sistema",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Eliminar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Sala eliminada!', '', 'success')
+        Axios.delete(`http://localhost:3001/deleteSala/${val.id_sala}`).then(()=>{
+        getSalas(); 
+      });
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+}
+
+  getSalas();
     return (
         
       <div>
@@ -52,37 +69,39 @@ export default function ListarSalas () {
   {/* Content */}
   <div className="container-fluid">
     <div className="table-responsive">
-      <table className="table table-dark table-sm">
+      <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th>#</th>
-            <th>NOMBRE SALA</th>
-            <th>DESCRIPCIÓN</th>
-            <th>ACTUALIZAR</th>
-            <th>ELIMINAR</th>
+            <th className="text-dark">#</th>
+            <th className="text-dark">NOMBRE SALA</th>
+            <th className="text-dark">DESCRIPCIÓN</th>
+            <th className="text-dark">ACTUALIZAR</th>
+            <th className="text-dark">ELIMINAR</th>
           </tr>
         </thead>
         <tbody>
-        {salas.map(sala=>(
-          <tr className="text-center">
-            <td>{sala.id}</td>
-            <td>{sala.nsala}</td>
-            <td>{sala.descripcion}</td>
+        {salas.map((val, key)=>{
+          return <tr className="text-center" key={val.id_sala}>
+            <td>{val.id_sala}</td>
+            <td>{val.nombre_sala}</td>
+            <td>{val.descripcion_sala}</td>
             <td>
-              <Link to={`/ActualizarSala/${sala.id}`} className="btn btn-success">
+              <Link to={`/ActualizarSala/${val.id_sala}`} className="btn btn-success">
                 <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
               <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deleteSalas(sala.id)}>
+                <button onClick={()=>{
+                  deleteSalas(val);
+                }} type="button" className="btn btn-warning">
                   <i className="far fa-trash-alt" />
                 </button>
               </form>
             </td>
           </tr>
-         ))
-        } 
+         })
+        }
         </tbody>
       </table>
     </div>

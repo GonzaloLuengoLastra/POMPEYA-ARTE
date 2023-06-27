@@ -1,51 +1,55 @@
-import axios from "axios";
-import React, { useEffect, useState} from 'react';
+import Axios from "axios";
+import React, { useEffect, useState, useHistory} from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from 'sweetalert2';
 
 
 export default function ActualizarUsuario () {
-  let navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const { id } = useParams();
+    const {id} = useParams();
+    const [Rut, setRut] = useState("");
+    const [nombre, setNombre] = useState("");
+    const [Apellido, setApellido] = useState("");
+    const [Telefono, setTelefono] = useState();
+    const [Direccion, setDireccion] = useState("");
+    const [NombreUsuario, setNombreUsuario] = useState();
+    const [Email, setEmail] = useState("");
+    const [Contrasena, setContrasena] = useState("");
+    const [Privilegio, setPrivilegio] = useState("");
 
-  const[dni,setDNI]=React.useState('')
-  const[nombres,setName]=React.useState('')
-  const[apellidos,setApellidos]=React.useState('')
-  const[telefono,setTelefono]=React.useState('')
-  const[direccion,setDireccion]=React.useState('')
-  const[username,setUsername]=React.useState('')
-  const[email,setEmail]=React.useState('')
-  const[privilegio,setPrivilegio]=React.useState()
-  const[usuario,setUsuarios]=React.useState([])
+    useEffect(() => {
+        Axios.get('http://localhost:3001/edit/'+id)
+        .then(res => {
+          setRut(res.data[0].rut)
+          setNombre(res.data[0].nombre)
+          setApellido(res.data[0].apellido)
+          setTelefono(res.data[0].telefono)
+          setDireccion(res.data[0].direccion)
+          setNombreUsuario(res.data[0].nombreUsuario)
+          setEmail(res.data[0].email)
+          setContrasena(res.data[0].contrasena)
+          setPrivilegio(res.data[0].privilegio)
+          console.log(res);
+        })
+        .catch(err => console.log(err));
+    }, [])
 
+    const handleClick=(e)=>{
+      e.preventDefault()
+      const usuario={Rut,nombre,Apellido,Telefono,Direccion,NombreUsuario,Email,Contrasena,Privilegio}
+      console.log(usuario)
+      fetch(`http://localhost:3001/update/${id}`,{
+        method:"PUT",
+        headers:{"content-type":"application/json"},
+        body:JSON.stringify(usuario)
   
-
-  
-
-  useEffect(() => {
-    loadUser();
-  }, []);
-
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const usuario={dni,nombres,apellidos,telefono,direccion,username,email,privilegio}
-    console.log(usuario)
-    fetch(`http://localhost:8080/edit/${id}`,{
-      method:"PUT",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(usuario)
-
-    }).then(()=>{
-      console.log("Estudiante editado")
-    })
-  }
-
-  const loadUser = async () => {
-    const result = await axios.get(`http://localhost:8080/get/${id}`);
-    setUsuarios(result.data);
-  };
+      }).then(()=>{
+        console.log("Sala editada")
+      })
+    }
 
 	return (
 	  <div>
@@ -77,56 +81,50 @@ export default function ActualizarUsuario () {
   {/* Page header */}
 
   {/* Content */}
-  <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+   <div className="container-fluid" >
+    <td>{Rut}</td>
+    <form action className="form-neon" autoComplete="off" >
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información personal</legend>
         <div className="container-fluid">
           <div className="row">
             <div className="col-12 col-md-4">
               <div className="form-group">
-                <label htmlFor="usuario_dni" className="bmd-label-floating">DNI</label>
-                <input type={"text"} pattern="[0-9-]{1,20}" className="form-control" name="usuario_dni_up" id="usuario_dni" maxLength={20}
-                  Value={usuario.dni}
-                  onChange={(e)=>setDNI(e.target.value)}
-                />
+                <label htmlFor="usuario_dni" className="bmd-label-floating">RUT</label>
+                <input defaultValue={Rut}
+                onChange={e => setRut(e.target.value)}
+                type="text" name="usuario_dni_up" id="usuario_dni" className="form-control" maxLength={20} />
               </div>
             </div>
             <div className="col-12 col-md-4">
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombres</label>
-                <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_up" id="usuario_nombre" maxLength={35} 
-                 defaultValue={usuario.nombres}
-                 onChange={(e)=>setName(e.target.value)}
+                <input defaultValue={nombre} type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_up" id="usuario_nombre" maxLength={35}
+                onChange={e => setNombre(e.target.value)}
                 />
               </div>
             </div>
             <div className="col-12 col-md-4">
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Apellidos</label>
-                <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_apellido_up" id="usuario_apellido" maxLength={35} 
-                defaultValue={usuario.apellidos}
-                onChange={(e)=>setApellidos(e.target.value)}
+                <input defaultValue={Apellido} type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_apellido_up" id="usuario_apellido" maxLength={35}
+                onChange={e => setApellido(e.target.value)}
                 />
-                
               </div>
             </div>
             <div className="col-12 col-md-6">
               <div className="form-group">
                 <label htmlFor="usuario_telefono" className="bmd-label-floating">Teléfono</label>
-                <input type="text" className="form-control" name="usuario_telefono_up" id="usuario_telefono" maxLength={20} 
-                defaultValue={usuario.telefono}
-                onChange={(e)=>setTelefono(e.target.value)}
+                <input defaultValue={Telefono} type="text" className="form-control" name="usuario_telefono_up" id="usuario_telefono" maxLength={20}
+                onChange={e => setTelefono(e.target.value)}
                 />
-                
               </div>
             </div>
             <div className="col-12 col-md-6">
               <div className="form-group">
                 <label htmlFor="usuario_direccion" className="bmd-label-floating">Dirección</label>
-                <input type="text" pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}" className="form-control" name="usuario_direccion_up" id="usuario_direccion" maxLength={190}
-                defaultValue={usuario.direccion}
-                onChange={(e)=>setDireccion(e.target.value)}
+                <input defaultValue={Direccion} type="text" className="form-control" name="usuario_direccion_up" id="usuario_direccion" maxLength={190}
+                onChange={e => setDireccion(e.target.value)}
                 />
               </div>
             </div>
@@ -141,18 +139,16 @@ export default function ActualizarUsuario () {
             <div className="col-12 col-md-6">
               <div className="form-group">
                 <label htmlFor="usuario_usuario" className="bmd-label-floating">Nombre de usuario</label>
-                <input type="text" pattern="[a-zA-Z0-9]{1,35}" className="form-control" name="usuario_usuario_up" id="usuario_usuario" maxLength={35}
-                defaultValue={usuario.username}
-                onChange={(e)=>setUsername(e.target.value)}
+                <input defaultValue={NombreUsuario} type="text" pattern="[a-zA-Z0-9]{1,35}" className="form-control" name="usuario_usuario_up" id="usuario_usuario" maxLength={35}
+                onChange={e => setNombreUsuario(e.target.value)}
                 />
               </div>
             </div>
             <div className="col-12 col-md-6">
               <div className="form-group">
                 <label htmlFor="usuario_email" className="bmd-label-floating">Email</label>
-                <input type="email" className="form-control" name="usuario_email_up" id="usuario_email" maxLength={70} 
-                defaultValue={usuario.email}
-                onChange={(e)=>setEmail(e.target.value)}
+                <input defaultValue={Email} type="email" className="form-control" name="usuario_email_up" id="usuario_email" maxLength={70} 
+                onChange={e => setEmail(e.target.value)}
                 />
               </div>
             </div>
@@ -178,7 +174,7 @@ export default function ActualizarUsuario () {
               <div className="form-group">
                 <label htmlFor="usuario_clave_nueva_1" className="bmd-label-floating">Contraseña</label>
                 <input type="password" className="form-control" name="usuario_clave_nueva_1" id="usuario_clave_nueva_1" pattern="[a-zA-Z0-9$@.-]{7,100}" maxLength={100}
-                /*onChange={(e)=>setPassword(e.target.value)}*/
+                
                 />
               </div>
             </div>
@@ -201,7 +197,7 @@ export default function ActualizarUsuario () {
               <p><span className="badge badge-success">Edición</span> Permisos para registrar y actualizar</p>
               <p><span className="badge badge-dark">Registrar</span> Solo permisos para registrar</p>
               <div className="form-group">
-                <select className="form-control" name="usuario_privilegio_up" defaultValue={usuario.privilegio} onChange={(e)=>setPrivilegio(e.target.value)} >
+                <select className="form-control" name="usuario_privilegio_up">
                   <option value selected disabled>Seleccione una opción</option>
                   <option value={1}>Control total</option>
                   <option value={2}>Edición</option>
@@ -233,16 +229,13 @@ export default function ActualizarUsuario () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button type="submit" onClick={handleClick} className="btn btn-raised btn-success btn-sm" ><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
-    <div className="alert alert-danger text-center" role="alert">
-      <p><i className="fas fa-exclamation-triangle fa-5x" /></p>
-      <h4 className="alert-heading">¡Ocurrió un error inesperado!</h4>
-      <p className="mb-0">Lo sentimos, no podemos mostrar la información solicitada debido a un error.</p>
-    </div>
   </div>
   </div>
 	  </div>
 	);
   }
+  
+

@@ -1,25 +1,43 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from "sweetalert2";
 
 export default function ListarCategorias() {
 
-  const[categorias,setCategorias]=React.useState([])
-  
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/categorias")
-    .then(res=>res.json())
-    .then((result)=>{
-      setCategorias(result);
-    }
-  )
-  },[])
+  const [categoria,setCategoria]= useState([]);
 
-  const deleteCategoria = async (id) => {
-    await axios.delete(`http://localhost:8080/editt/${id}`);
-  };
+  const getCategorias = ()=>{
+    Axios.get("http://localhost:3001/getCategorias").then((response)=>{
+      setCategoria(response.data); 
+    });
+  }
+
+  const deleteCategoria = (val) =>{
+    Swal.fire({
+      title: 'Eliminar Categoría',
+      text: "¿Desea eliminar la categoría "+val.nombre_categoria+" del sistema",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Eliminar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Categoría eliminada!', '', 'success')
+        Axios.delete(`http://localhost:3001/deleteCategoria/${val.id_categoria}`).then(()=>{
+        getCategorias(); 
+      });
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+}
+
+  getCategorias();
+
     return (
         
       <div>
@@ -52,36 +70,38 @@ export default function ListarCategorias() {
   {/* Content */}
   <div className="container-fluid">
     <div className="table-responsive">
-      <table className="table table-dark table-sm">
+      <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th>#</th>
-            <th>NOMBRE CATEGORÍA</th>
-            <th>DESCRIPCIÓN</th>
-            <th>ACTUALIZAR</th>
-            <th>ELIMINAR</th>
+            <th className="text-dark">#</th>
+            <th className="text-dark">NOMBRE CATEGORÍA</th>
+            <th className="text-dark">DESCRIPCIÓN</th>
+            <th className="text-dark">ACTUALIZAR</th>
+            <th className="text-dark">ELIMINAR</th>
           </tr>
         </thead>
         <tbody>
-        {categorias.map(categoria=>(
-          <tr className="text-center">
-            <td>{categoria.id}</td>
-            <td>{categoria.ncategoria}</td>
-            <td>{categoria.descripcion}</td>
+        {categoria.map((val)=>{
+          return <tr className="text-center">
+            <td>{val.id_categoria}</td>
+            <td>{val.nombre_categoria}</td>
+            <td>{val.descripcion_categoria}</td>
             <td>
-              <Link to={`/ActualizarCategoria/${categoria.id}`}className="btn btn-success">
+              <Link to={`/ActualizarCategoria/${val.id_categoria}`}className="btn btn-success">
                 <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
               <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deleteCategoria(categoria.id)}>
+                <button onClick={()=>{
+                  deleteCategoria(val);
+                }} type="button" className="btn btn-warning">
                   <i className="far fa-trash-alt" />
                 </button>
               </form>
             </td>
           </tr>
-         ))
+         })
         } 
         </tbody>
       </table>

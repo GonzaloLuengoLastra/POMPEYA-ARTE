@@ -1,24 +1,43 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from "sweetalert2";
 
 export default function ListarPrecios () {
 
-  const[precios,setPrecios]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/precios")
-    .then(res=>res.json())
-    .then((result)=>{
-      setPrecios(result);
-    }
-  )
-  },[])
+  const [precio,setPrecios]= useState([]);
 
-  const deletePrecios = async (id) => {
-    await axios.delete(`http://localhost:8080/editt/${id}`);
-  };
+  const getPrecio = ()=>{
+    Axios.get("http://localhost:3001/getPrecios").then((response)=>{
+      setPrecios(response.data); 
+    });
+  }
+
+  const deletePrecio = (val) =>{
+    Swal.fire({
+      title: 'Eliminar Precio',
+      text: "¿Desea eliminar el precio de "+val.cantidad_precio+" del sistema",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Eliminar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Precio eliminado!', '', 'success')
+        Axios.delete(`http://localhost:3001/deletePrecio/${val.id_precio}`).then(()=>{
+        getPrecio(); 
+      });
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+}
+
+  getPrecio();
+
     return (
         
       <div>
@@ -51,34 +70,36 @@ export default function ListarPrecios () {
   {/* Content */}
   <div className="container-fluid">
     <div className="table-responsive">
-      <table className="table table-dark table-sm">
+      <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th>#</th>
-            <th>PRECIO $</th>
-            <th>ACTUALIZAR</th>
-            <th>ELIMINAR</th>
+            <th className="text-dark">#</th>
+            <th className="text-dark">PRECIO $</th>
+            <th className="text-dark">ACTUALIZAR</th>
+            <th className="text-dark">ELIMINAR</th>
           </tr>
         </thead>
         <tbody>
-        {precios.map(precio=>(
-          <tr className="text-center">
-            <td>{precio.id}</td>
-            <td>{precio.valor}</td>
+        {precio.map((val, key)=>{
+          return <tr className="text-center" key={val.id_precio}>
+            <td>{val.id_precio}</td>
+            <td>{val.cantida_precio}</td>
             <td>
-              <Link to={`/ActualizarPrecio/${precio.id}`} className="btn btn-success">
+              <Link to={`/ActualizarPrecio/${val.id_precio}`} className="btn btn-success">
                 <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
               <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deletePrecios(precio.id)}>
+                <button onClick={()=>{
+                  deletePrecio(val);
+                }} type="button" className="btn btn-warning">
                   <i className="far fa-trash-alt" />
                 </button>
               </form>
             </td>
           </tr>
-        ))
+        })
       }   
         </tbody>
       </table>

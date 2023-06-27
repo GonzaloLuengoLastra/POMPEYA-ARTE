@@ -52,7 +52,7 @@ export default function NuevoContrato () {
       body:JSON.stringify(contrato)
 
     }).then(()=>{
-      console.log("Estudiante añadido")
+      console.log("Contrato registrado")
     })
   }
 

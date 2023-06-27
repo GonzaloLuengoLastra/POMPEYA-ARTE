@@ -4,9 +4,12 @@ import Header from '../Header';
 import NavBar from '../NavBar';
 import { useState, useEffect } from 'react';
 import Axios from "axios";
+import Swal from 'sweetalert2';
+import { useNavigate } from 'react-router-dom';
 
 export default function NuevoUsuario() {
   
+  const navigate = useNavigate();
     const [Rut, setRut] = useState("");
     const [nombre, setNombre] = useState("");
     const [Apellido, setApellido] = useState("");
@@ -17,20 +20,37 @@ export default function NuevoUsuario() {
     const [Contrasena, setContrasena] = useState("");
     const [Privilegio, setPrivilegio] = useState(1);    
 
-    const addUsuario = ()=>{
-      Axios.post("http://localhost:3001/create", {
-        rut:Rut,
-        nombre:nombre,
-        apellido: Apellido,
-        telefono: Telefono,
-        direccion: Direccion,
-        nombreUsuario: NombreUsuario,
-        email: Email,
-        contrasena: Contrasena,
-        privilegio: Privilegio
-      }).then(()=>{
-        console.log("Usuario registrado");
-      });
+    const guardarUsuarios = (val) =>{
+      Swal.fire({
+        title: 'Guardar Usuarios',
+        text: "¿Desea guardar al usuario en el sistema?",
+        icon: 'warning',
+        showDenyButton: true,
+        confirmButtonText: 'Guardar',
+        denyButtonText: `Cancelar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire('Usuario guardado!', '', 'success')
+          Axios.post("http://localhost:3001/create", {
+            rut:Rut,
+            nombre:nombre,
+            apellido: Apellido,
+            telefono: Telefono,
+            direccion: Direccion,
+            nombreUsuario: NombreUsuario,
+            email: Email,
+            contrasena: Contrasena,
+            privilegio: Privilegio
+        }).then(()=>{
+          console.log("Usuario registrado");
+          
+        });
+        navigate("/ListarUsuarios");
+        } else if (result.isDenied) {
+          Swal.fire('Operación cancelada', '', 'info')
+        }
+      })
     }
 
     return (
@@ -197,7 +217,7 @@ export default function NuevoUsuario() {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button onClick={addUsuario} type="submit" className="btn btn-raised btn-info btn-sm" ><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button onClick={guardarUsuarios} type="button" className="btn btn-raised btn-info btn-sm" ><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

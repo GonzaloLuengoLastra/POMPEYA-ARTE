@@ -1,24 +1,41 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import { useNavigate } from 'react-router-dom';
+import Axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default function NuevaSala () {
 
-  const[nsala,setNsala]=React.useState('')
-  const[descripcion,setDescripcion]=React.useState('')
+  const navigate = useNavigate();
+  const[nsala,setNsala]= useState('')
+  const[descripcion,setDescripcion]= useState('')
 
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const sala={nsala,descripcion}
-    console.log(sala)
-    fetch("http://localhost:8080/sala",{
-      method:"POST",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(sala)
-
-    }).then(()=>{
-      console.log("Estudiante añadido")
+  const guardarSalas = (val) =>{
+    Swal.fire({
+      title: 'Guardar Sala',
+      text: "¿Desea guardar la Sala en el sistema?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Sala guardada!', '', 'success')
+        Axios.post("http://localhost:3001/salas", {
+        nombre_sala:nsala,
+        descripcion_sala:descripcion
+      }).then(()=>{
+        console.log("Sala registrado");
+        
+      });
+      navigate("/ListarSalas");
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
     })
   }
 
@@ -77,7 +94,7 @@ export default function NuevaSala () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <Link onClick={guardarSalas} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</Link>
       </p>
     </form>
   </div>

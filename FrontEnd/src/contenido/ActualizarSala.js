@@ -1,4 +1,4 @@
-import axios from "axios";
+import Axios from "axios";
 import React, {  useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
@@ -8,22 +8,17 @@ export default function ActualizarSala () {
 
   let navigate = useNavigate();
 
-  const { id } = useParams();
+  const { id_sala } = useParams();
 
   const[nsala,setNsala]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
   const[sala,setSala]=React.useState([])
 
-
-  useEffect(() => {
-    loadUser();
-  }, []);
-
   const handleClick=(e)=>{
     e.preventDefault()
     const sala={nsala,descripcion}
     console.log(sala)
-    fetch(`http://localhost:8080/edits/${id}`,{
+    fetch(`http://localhost:3001/updateSala/${id_sala}`,{
       method:"PUT",
       headers:{"content-type":"application/json"},
       body:JSON.stringify(sala)
@@ -33,16 +28,24 @@ export default function ActualizarSala () {
     })
   }
 
-  const loadUser = async () => {
-    const result = await axios.get(`http://localhost:8080/gets/${id}`);
-    setSala(result.data);
-  };
+  useEffect(() => {
+    Axios.get('http://localhost:3001/editSala/'+id_sala)
+    .then(res => {
+      setNsala(res.data[0].nombre_sala)
+      setDescripcion(res.data[0].descripcion_sala)
+      console.log(res);
+    })
+    .catch(err => console.log(err));
+}, [])
+ 
 
 	return (
 	  <div>
       <Header/>
       <NavBar/>
 		<div class="content-wrapper">
+      {id_sala}
+      {nsala}
 		{/* Page content */}
 		<div className="full-box page-header">
     <h3 className="text-left">
@@ -78,7 +81,7 @@ export default function ActualizarSala () {
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombre Sala</label>
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35}
-                defaultValue={sala.nsala}
+                defaultValue={nsala}
                 onChange={(e)=>setNsala(e.target.value)} />
               </div>
             </div>
@@ -86,7 +89,7 @@ export default function ActualizarSala () {
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Descripción</label>
                 <input type="text" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35}
-                defaultValue={sala.descripcion}
+                defaultValue={descripcion}
                 onChange={(e)=>setDescripcion(e.target.value)} />
               </div>
             </div>

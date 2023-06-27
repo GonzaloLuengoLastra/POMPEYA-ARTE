@@ -1,26 +1,42 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Link, useParams } from "react-router-dom";
+import React, { useState } from "react";
+import Axios from "axios";
+import { Link } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
-
+import Swal from 'sweetalert2';
 
 export default function ListarUsuarios() {
   
-  const[usuarios,setUsuarios]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/usuarios")
-    .then(res=>res.json())
-    .then((result)=>{
-      setUsuarios(result);
-    }
-  )
-  },[])
+  const  [listaUsuarios, setUsuarios] = useState([]);
 
-  const deleteUsuarios = async (id) => {
-    await axios.delete(`http://localhost:8080/edit/${id}`);
-  };
+  const getUsuarios = ()=>{
+    Axios.get("http://localhost:3001/usuarios").then((response)=>{
+      setUsuarios(response.data); 
+    });
+  }
 
+  const deleteUsuario = (val) =>{
+      Swal.fire({
+        title: 'Eliminar Usuario',
+        text: "¿Desea eliminar a "+val.nombre+" del sistema",
+        icon: 'warning',
+        showDenyButton: true,
+        confirmButtonText: 'Eliminar',
+        denyButtonText: `Cancelar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire('Usuario eliminado!', '', 'success')
+          Axios.delete(`http://localhost:3001/delete/${val.id_usuario}`).then(()=>{
+          getUsuarios(); 
+        });
+        } else if (result.isDenied) {
+          Swal.fire('Operación cancelada', '', 'info')
+        }
+      })
+  }
+
+  getUsuarios();
     return (
         
       <div>
@@ -53,47 +69,47 @@ export default function ListarUsuarios() {
   {/* Content */}
   <div className="container-fluid">
     <div className="table-responsive">
-      <table className="table table-dark table-sm">
+      <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th>#</th>
-            <th>DNI</th>
-            <th>NOMBRE</th>
-            <th>APELLIDO</th>
-            <th>TELÉFONO</th>
-            <th>USUARIO</th>
-            <th>EMAIL</th>
-            <th>ACTUALIZAR</th>
-            <th>ELIMINAR</th>
+            <th className="text-dark">#</th>
+            <th className="text-dark">RUT</th>
+            <th className="text-dark">NOMBRE</th>
+            <th className="text-dark">APELLIDO</th>
+            <th className="text-dark">TELÉFONO</th>
+            <th className="text-dark">USUARIO</th>
+            <th className="text-dark">EMAIL</th>
+            <th className="text-dark">ACTUALIZAR</th>
+            <th className="text-dark">ELIMINAR</th>
           </tr>
         </thead>
         <tbody>
-        {usuarios.map(usuario=>(
-          <tr className="text-center">
-            
-            <td>{usuario.id}</td>
-            <td>{usuario.dni}</td>
-            <td>{usuario.nombres}</td>
-            <td>{usuario.apellidos}</td>
-            <td>{usuario.telefono}</td>
-            <td>{usuario.username}</td>
-            <td>{usuario.email}</td>
+          {listaUsuarios.map((val, key)=>{
+            return <tr className="text-center" key={val.id_usuario}>
+            <td>{val.id_usuario}</td>
+            <td>{val.rut}</td>
+            <td>{val.nombre}</td>
+            <td>{val.apellido}</td>
+            <td>{val.telefono}</td>
+            <td>{val.nombreUsuario}</td>
+            <td>{val.email}</td>
             <td>
-              <Link to={`/ActualizarUsuario/${usuario.id}`} className="btn btn-success" 
-              >
-                <i className="fas fa-sync-alt"  />	
+              <Link to={`/ActualizarUsuario/${val.id_usuario}`} className="btn btn-success">
+                <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
               <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deleteUsuarios(usuario.id)}>
+                <button onClick={()=>{
+                  deleteUsuario(val);
+                }} type="button" className="btn btn-warning">
                   <i className="far fa-trash-alt" />
                 </button>
               </form>
             </td>
           </tr>
-          ))
-        }
+          })
+          }
           
         </tbody>
       </table>
@@ -112,7 +128,6 @@ export default function ListarUsuarios() {
       </ul>
     </nav>
   </div>
-
 </div>
 
       </div>

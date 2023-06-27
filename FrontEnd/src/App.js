@@ -47,6 +47,7 @@ import RecuperarContraseña from "./contenido/RecuperarContraseña";
 import ConfirmarContraseña from "./contenido/ConfirmarContraseña";
 import NuevaContraseña from "./contenido/NuevaContraseña";
 import Imagenes from "./contenido/Imagenes";
+import Login from "./contenido/Login";
 
 // Initialize Google Analytics
 
@@ -56,10 +57,11 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Inicio/>}/>
+        <Route path="/Login" element={<Login/>}/>
         <Route path="/Dashboard" element={<Dashboard/>}/>
         <Route path="/NuevoUsuario" element={<NuevoUsuario/>}/>
         <Route path="/ListarUsuarios" element={<ListarUsuarios/>}/>
-        <Route path="/ActualizarUsuario" element={<ActualizarUsuario/>}/>
+        <Route path="/ActualizarUsuario/:id_usuario" element={<ActualizarUsuario/>}/>
         <Route path="/BuscarUsuario" element={<BuscarUsuario/>}/>
         <Route path="/NuevoProducto" element={<NuevoProducto/>}/>
         <Route path="/ListarProductos" element={<ListarProductos/>}/>
@@ -71,7 +73,7 @@ function App() {
         <Route path="/BuscarCategoria" element={<BuscarCategoria/>}/>
         <Route path="/NuevaSala" element={<NuevaSala/>}/>
         <Route path="/ListarSalas" element={<ListarSalas/>}/>
-        <Route path="/ActualizarSala" element={<ActualizarSala/>}/>
+        <Route path="/ActualizarSala/:id_sala" element={<ActualizarSala/>}/>
         <Route path="/BuscarSala" element={<BuscarSala/>}/>
         <Route path="/NuevoPrecio" element={<NuevoPrecio/>}/>
         <Route path="/ListarPrecios" element={<ListarPrecios/>}/>

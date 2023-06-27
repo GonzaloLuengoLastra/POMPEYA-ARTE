@@ -2,23 +2,39 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import { useNavigate } from 'react-router-dom';
+import Axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default function NuevaCategoria() {
 
+    const navigate = useNavigate();
     const[ncategoria,setNcategoria]=React.useState('')
     const[descripcion,setDescripcion]=React.useState('')
 
-    const handleClick=(e)=>{
-      e.preventDefault()
-      const categoria={ncategoria,descripcion}
-      console.log(categoria)
-      fetch("http://localhost:8080/categoria",{
-        method:"POST",
-        headers:{"content-type":"application/json"},
-        body:JSON.stringify(categoria)
-  
-      }).then(()=>{
-        console.log("Categoria añadido")
+    const guardarCategoria = (val) =>{
+      Swal.fire({
+        title: 'Guardar Categoría',
+        text: "¿Desea guardar la categoría en el sistema?",
+        icon: 'warning',
+        showDenyButton: true,
+        confirmButtonText: 'Guardar',
+        denyButtonText: `Cancelar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire('Categoría guardada!', '', 'success')
+          Axios.post("http://localhost:3001/categorias", {
+          nombre_categoria:ncategoria,
+          descripcion_categoria:descripcion
+        }).then(()=>{
+          console.log("Categoría registrada");
+          
+        });
+        navigate("/ListarCategorias");
+        } else if (result.isDenied) {
+          Swal.fire('Operación cancelada', '', 'info')
+        }
       })
     }
   
@@ -77,7 +93,7 @@ export default function NuevaCategoria() {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="submit" className="btn btn-raised btn-info btn-sm" onClick={handleClick}><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button type="button" className="btn btn-raised btn-info btn-sm" onClick={guardarCategoria}><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>
