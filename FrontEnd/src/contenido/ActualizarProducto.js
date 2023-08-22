@@ -1,10 +1,110 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-import Header from '../Header';
-import NavBar from '../NavBar';
+import axios from "axios";
+import React, {  useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Header from "../Header";
+import NavBar from "../NavBar";
+import Swal from 'sweetalert2';
 
-export default class ActualizarUsuario extends Component {
-  render() {
+  
+export default function ActualizarUsuario() {
+
+
+    let navigate = useNavigate();
+
+    const { id_producto } = useParams();
+  
+    const[nombres,setNombre]=React.useState('')
+    const[sala,setSala]=React.useState('')
+    const[artista,setArtista]=React.useState('')
+    const[fecha, setFecha]=React.useState('')
+    const[categoria,setCategoria]=React.useState('')
+    const[precio,setPrecio]=React.useState('')
+    const[pintura,setPintura]=React.useState('')
+  
+    React.useEffect(() => {
+      axios.get('http://localhost:3001/editProducto/'+id_producto)
+      .then(res => {
+        setNombre(res.data[0].nombre_producto)
+        setFecha(res.data[0].fecha_producto)
+        setArtista(res.data[0].id_usuario)
+        setCategoria(res.data[0].id_categoria)
+        setPrecio(res.data[0].id_precio)
+        setSala(res.data[0].id_sala)
+      })
+      .catch(err => console.log(err));
+    }, [])
+  
+    const[usuario,setUsuario]=React.useState([])
+    React.useEffect(()=>{
+      fetch("http://localhost:3001/usuarios")
+      .then(res=>res.json())
+      .then((result)=>{
+        setUsuario(result);
+      }
+    )
+    },[])
+  
+    const[precioo,setPPrecio]=React.useState([])
+    React.useEffect(()=>{
+      fetch("http://localhost:3001/getPrecios")
+      .then(res=>res.json())
+      .then((result)=>{
+        setPPrecio(result);
+      }
+    )
+    },[])
+  
+    const[cate,setCate]=React.useState([])
+    React.useEffect(()=>{
+      fetch("http://localhost:3001/getCategorias")
+      .then(res=>res.json())
+      .then((result)=>{
+        setCate(result);
+      }
+    )
+    },[])
+  
+    const[ssala,setSsala]=React.useState([])
+    React.useEffect(()=>{
+      fetch("http://localhost:3001/getSalas")
+      .then(res=>res.json())
+      .then((result)=>{
+        setSsala(result);
+      }
+    )
+    },[])
+  
+    const updateProducto = (val) =>{
+      Swal.fire({
+        title: 'Actualizar Producto',
+        text: "¿Desea actualizar el producto en el sistema?",
+        icon: 'warning',
+        showDenyButton: true,
+        confirmButtonText: 'Guardar',
+        denyButtonText: `Cancelar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire('Producto Actualizado!', '', 'success')
+          axios.put("http://localhost:3001/updateProducto/"+id_producto, {
+            nombre_producto: nombres,
+            fecha_producto: fecha,
+            imagen_producto: pintura,
+            id_usuario: artista,
+            id_categoria: categoria,
+            id_precio: precio,
+            id_sala: sala
+        }).then(()=>{
+          console.log("Contrato registrado");
+          
+        });
+        navigate("/ListarProductos");
+        } else if (result.isDenied) {
+          Swal.fire('Operación cancelada', '', 'info')
+        }
+      })
+    }  
+
 	return (
 	  <div>
       <Header/>
@@ -44,19 +144,19 @@ export default class ActualizarUsuario extends Component {
             <div className="col-12 col-md-4">
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombres</label>
-                <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} />
+                <input type="text" defaultValue={nombres} onChange={(e)=>setNombre(e.target.value)} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} />
               </div>
             </div>
             <div className="col-12 col-md-2">
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Año Creación</label>
-                <input type="date" pattern="" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} />
+                <input type="date" defaultValue={fecha} onChange={(e)=>setFecha(e.target.value)} pattern="" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} />
               </div>
             </div>
             <div className="col-12 col-md-6">
               <div className="form-group">
                 <label htmlFor="usuario_direccion" className="bmd-label-floating">Pintura</label>
-                <input type="file" pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}" className="form-control" name="usuario_direccion_reg" id="usuario_direccion" maxLength={190} />
+                <input type="file" onChange={(e)=>setPintura(e.target.value)} pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}" className="form-control" name="usuario_direccion_reg" id="usuario_direccion" maxLength={190} />
               </div>
             </div>
           </div>
@@ -69,11 +169,12 @@ export default class ActualizarUsuario extends Component {
           <div className="row">
             <div className="col-12">
               <div className="form-group">
-                <select className="form-control" name="usuario_privilegio_reg">
+                <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setArtista(e.target.value)}>
                   <option value selected disabled>Seleccione al Artista</option>
-                  <option value={1}>Artista 1</option>
-                  <option value={2}>Artista 2</option>
-                  <option value={3}>Artista 3</option>
+                  {usuario.map(contratos=>(
+                  <option>{contratos.id_usuario}</option>
+                  ))
+                  }
                 </select>
               </div>
             </div>
@@ -87,11 +188,12 @@ export default class ActualizarUsuario extends Component {
           <div className="row">
             <div className="col-12">
               <div className="form-group">
-                <select className="form-control" name="usuario_privilegio_reg">
+                <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setCategoria(e.target.value)}>
                   <option value selected disabled>Seleccione una categoría</option>
-                  <option value={1}>Categoría 1</option>
-                  <option value={2}>Categoría 2</option>
-                  <option value={3}>Categoría 3</option>
+                  {cate.map(catee=>(
+                  <option>{catee.id_categoria}</option>
+                  ))
+                }
                 </select>
               </div>
             </div>
@@ -105,11 +207,12 @@ export default class ActualizarUsuario extends Component {
           <div className="row">
             <div className="col-5">
               <div className="form-group">
-                <select className="form-control" name="usuario_privilegio_reg">
+                <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setPrecio(e.target.value)}>
                   <option value selected disabled>Seleccione un Precio</option>
-                  <option value={1}>Precio 1</option>
-                  <option value={2}>Precio 2</option>
-                  <option value={3}>Precio 3</option>
+                  {precioo.map(ptr=>(
+                  <option>{ptr.id_precio}</option>
+                  ))
+                }
                 </select>
               </div>
             </div>
@@ -123,11 +226,12 @@ export default class ActualizarUsuario extends Component {
           <div className="row">
             <div className="col-5">
               <div className="form-group">
-                <select className="form-control" name="usuario_privilegio_reg">
+                <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setSala(e.target.value)}>
                   <option value selected disabled>Seleccione una Sala de Exhibición</option>
-                  <option value={1}>Sala 1</option>
-                  <option value={2}>Sala 2</option>
-                  <option value={3}>Sala 3</option>
+                  {ssala.map(ssalas=>(
+                  <option>{ssalas.id_sala}</option>
+                  ))
+                }
                 </select>
               </div>
             </div>
@@ -135,7 +239,7 @@ export default class ActualizarUsuario extends Component {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="submit" className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button type="button" onClick={updateProducto} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
     <div className="alert alert-danger text-center" role="alert">
@@ -148,4 +252,3 @@ export default class ActualizarUsuario extends Component {
 	  </div>
 	);
   }
-}

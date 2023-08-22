@@ -1,23 +1,40 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
+import Axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from "sweetalert2";
 
 export default function ListarIncorporaciones () {
   const[incorporacion,setIncorporacion]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/Incorporaciones")
-    .then(res=>res.json())
-    .then((result)=>{
-      setIncorporacion(result);
-    }
-  )
-  },[])
+  
+  const getIncor = ()=>{
+    Axios.get("http://localhost:3001/getIncor").then((response)=>{
+      setIncorporacion(response.data); 
+    });
+  }
 
-  const deleteIncorporacion = async (id) => {
-    await axios.delete(`http://localhost:8080/editt/${id}`);
-  };
+  const deleteIncor = (val) =>{
+    Swal.fire({
+      title: 'Eliminar Incorporación',
+      text: "¿Desea eliminar la incorporación del sistema",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Eliminar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Incorporación eliminada!', '', 'success')
+        Axios.delete(`http://localhost:3001/deleteIncor/${val.id_incor}`).then(()=>{
+      });
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+}
+
+getIncor();
 
     return (
         
@@ -51,39 +68,39 @@ export default function ListarIncorporaciones () {
   {/* Content */}
   <div className="container-fluid">
     <div className="table-responsive">
-      <table className="table table-dark table-sm">
+      <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th>#</th>
-            <th>DESCRIPCIÓN</th>
-            <th>VALOR</th>
-            <th>USUARIO</th>
-            <th>ACTUALIZAR</th>
-            <th>ELIMINAR</th>
+            <th className="text-dark">#</th>
+            <th className="text-dark">DESCRIPCIÓN</th>
+            <th className="text-dark">VALOR</th>
+            <th className="text-dark">USUARIO</th>
+            <th className="text-dark">ACTUALIZAR</th>
+            <th className="text-dark">ELIMINAR</th>
           </tr>
         </thead>
         <tbody>
-        {incorporacion.map(incorporaciones=>(
-          <tr className="text-center">
-            <td>{incorporaciones.id}</td>
-            <td>{incorporaciones.descripcion}</td>
-            <td>{incorporaciones.vincorporacion}</td>
-            <td>{incorporaciones.descripcion}</td>
+        {incorporacion.map((val, key)=>{
+          return <tr className="text-center">
+            <td>{val.id_incor}</td>
+            <td>{val.descripcion_incor}</td>
+            <td>{val.valor_incor}</td>
+            <td>{val.id_usuario}</td>
             <td>
-              <Link to={`/ActualizarIncorporacion/${incorporaciones.id}`} className="btn btn-success">
+              <Link to={`/ActualizarIncorporacion/${val.id_incor}`} className="btn btn-success">
                 <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
               <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deleteIncorporacion(incorporaciones.id)}>
+                <button type="button" className="btn btn-warning" onClick={() => deleteIncor(val)}>
                   <i className="far fa-trash-alt" />
                 </button>
               </form>
             </td>
           </tr>
-        ))
-      }   
+        })
+      }  
         </tbody>
       </table>
     </div>

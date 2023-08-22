@@ -1,8 +1,9 @@
-import Axios from "axios";
-import React, {  useEffect, useState } from 'react';
+import axios from "axios";
+import React, {  useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from 'sweetalert2';
 
 export default function ActualizarSala () {
 
@@ -12,31 +13,41 @@ export default function ActualizarSala () {
 
   const[nsala,setNsala]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
-  const[sala,setSala]=React.useState([])
-
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const sala={nsala,descripcion}
-    console.log(sala)
-    fetch(`http://localhost:3001/updateSala/${id_sala}`,{
-      method:"PUT",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(sala)
-
-    }).then(()=>{
-      console.log("Sala editada")
-    })
-  }
 
   useEffect(() => {
-    Axios.get('http://localhost:3001/editSala/'+id_sala)
+    axios.get('http://localhost:3001/editSala/'+id_sala)
     .then(res => {
-      setNsala(res.data[0].nombre_sala)
+      setNsala(res.data[0].nombre_sala);
       setDescripcion(res.data[0].descripcion_sala)
-      console.log(res);
     })
     .catch(err => console.log(err));
-}, [])
+  }, [])
+
+  const updateSala = (e) =>{
+    Swal.fire({
+      title: 'Actualizar Sala',
+      text: "¿Desea actualizar la sala en el sistema?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Sala actualizada!', '', 'success')
+        axios.put('http://localhost:3001/updateSala/'+id_sala, {
+        nombre_sala:nsala,
+        descripcion_sala:descripcion
+      }).then(()=>{
+        console.log("Tipo de contrato registrado");
+        
+      });
+      navigate("/ListarSalas");
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+  }
  
 
 	return (
@@ -44,8 +55,6 @@ export default function ActualizarSala () {
       <Header/>
       <NavBar/>
 		<div class="content-wrapper">
-      {id_sala}
-      {nsala}
 		{/* Page content */}
 		<div className="full-box page-header">
     <h3 className="text-left">
@@ -98,7 +107,7 @@ export default function ActualizarSala () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button type="submit" onClick={updateSala} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
     <div className="alert alert-danger text-center" role="alert">

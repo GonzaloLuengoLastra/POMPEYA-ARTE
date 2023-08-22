@@ -1,41 +1,51 @@
 import axios from "axios";
-import React, { useEffect, useState} from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from 'sweetalert2';
 
 export default function ActualizarPrecio () {
 
   let navigate = useNavigate();
 
-  const { id } = useParams();
+  const { id_precio } = useParams();
 
   const[valor,setValor]=React.useState('')
-  const[precio,setPrecio]=React.useState([])
-
 
   useEffect(() => {
-    loadUser();
-  }, []);
+    axios.get('http://localhost:3001/editPrecio/'+id_precio)
+    .then(res => {
+      setValor(res.data[0].cantida_precio)
+    })
+    .catch(err => console.log(err));
+  }, [])
 
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const precio={valor}
-    console.log(precio)
-    fetch(`http://localhost:8080/editp/${id}`,{
-      method:"PUT",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(precio)
-
-    }).then(()=>{
-      console.log("Categoria editada")
+  const updatePrecio = (e) =>{
+    Swal.fire({
+      title: 'Actualizar Precio',
+      text: "¿Desea actualizar el precio en el sistema?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Precio actualizado!', '', 'success')
+        axios.put('http://localhost:3001/updatePrecio/'+id_precio, {
+        cantida_precio:valor
+      }).then(()=>{
+        console.log("Tipo de contrato registrado");
+        
+      });
+      navigate("/ListarPrecios");
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
     })
   }
 
-  const loadUser = async () => {
-    const result = await axios.get(`http://localhost:8080/getp/${id}`);
-    setPrecio(result.data);
-  };
 	return (
 	  <div>
       <Header/>
@@ -76,7 +86,7 @@ export default function ActualizarPrecio () {
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Precio $</label>
                 <input type="number" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
-                defaultValue={precio.valor}
+                defaultValue={valor}
                 onChange={(e)=>setValor(e.target.value)}
                 />
               </div>
@@ -86,7 +96,7 @@ export default function ActualizarPrecio () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button type="button" onClick={updatePrecio} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
     <div className="alert alert-danger text-center" role="alert">

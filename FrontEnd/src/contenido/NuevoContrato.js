@@ -1,60 +1,80 @@
-import * as React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Axios from "axios";
+import Swal from 'sweetalert2';
 
 export default function NuevoContrato () {
 
-  const[descripcion,setDescripcion]=React.useState('')
-  const[tcontrato,setTcontrato]=React.useState('')
-  const[sala,setSala]=React.useState('')
-  const[artista,setArtista]=React.useState('')
-  const[plazo,setPlazo]=React.useState('')
-  const[valor,setValor]=React.useState('')
+  const navigate = useNavigate();
+    const[descripcion,setDescripcion]= useState('')
+    const[tcontrato,setTcontrato]= useState('')
+    const[sala,setSala]= useState('')
+    const[plazo,setPlazo]= useState()
+    const[valor,setValor]= useState('')
+    const[artista,setArtista]= useState('')
+    
+    const[usuario,setUsuario]= useState([])
+    useEffect(()=>{
+      fetch("http://localhost:3001/usuarios")
+      .then(res=>res.json())
+      .then((result)=>{
+        setUsuario(result);
+      }
+    )
+    },[])
+    
+    const[ssala,setSsala]=useState([])
+    useEffect(()=>{
+      fetch("http://localhost:3001/getSalas")
+      .then(res=>res.json())
+      .then((result)=>{
+        setSsala(result);
+      }
+    )
+    },[])
 
-  const[usuario,setUsuario]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/hola/4")
-    .then(res=>res.json())
-    .then((result)=>{
-      setUsuario(result);
-    }
-  )
-  },[])
+    const[ttipo,setTtipo]=useState([])
+    useEffect(()=>{
+      fetch("http://localhost:3001/getTContrato")
+      .then(res=>res.json())
+      .then((result)=>{
+        setTtipo(result);
+      }
+    )
+    },[])
 
-  const[ssala,setSsala]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/salas")
-    .then(res=>res.json())
-    .then((result)=>{
-      setSsala(result);
-    }
-  )
-  },[])
-
-  const[ttipo,setTtipo]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/Tcontratos")
-    .then(res=>res.json())
-    .then((result)=>{
-      setTtipo(result);
-    }
-  )
-  },[])
-
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const contrato={descripcion,tcontrato,sala,artista,plazo,valor}
-    console.log(contrato)
-    fetch("http://localhost:8080/contrato",{
-      method:"POST",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(contrato)
-
-    }).then(()=>{
-      console.log("Contrato registrado")
-    })
-  }
+    const guardarContrato = (val) =>{
+          Swal.fire({
+            title: 'Guardar Contrato',
+            text: "¿Desea guardar el contrato en el sistema?",
+            icon: 'warning',
+            showDenyButton: true,
+            confirmButtonText: 'Guardar',
+            denyButtonText: `Cancelar`,
+          }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+              Swal.fire('Contrato guardado!', '', 'success')
+              Axios.post("http://localhost:3001/Contrato", {
+                descripcion_contrato: descripcion,
+                plazo_contrato: plazo,
+                precio_contrato: valor,
+                id_tipo_contrato: tcontrato,
+                id_sala: sala,
+                id_usuario: artista
+            }).then(()=>{
+              console.log("Contrato registrado");
+              
+            });
+            navigate("/ListarContrato");
+            } else if (result.isDenied) {
+              Swal.fire('Operación cancelada', '', 'info')
+            }
+          })
+        }
+  
 
     return (
       <div>
@@ -103,24 +123,27 @@ export default function NuevoContrato () {
     
       
           <div className="row">
+            
             <div className="col-4">
+            
               <div className="form-group">
                 <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setTcontrato(e.target.value)}>
                   <option value selected disabled>Seleccionar Tipo Contrato</option>
-                  {ttipo.map(ssalas=>(
-                  <option>{ssalas.ntipocontrato}</option>
+                  {ttipo.map(tipoo=>(
+                  <option>{tipoo.id_tipo_contrato}</option>
                   ))
-                } 
+              } 
                 </select>
+                
               </div>
             </div>
-
+              
             <div className="col-4">
               <div className="form-group">
                 <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setSala(e.target.value)}>
                   <option value selected disabled>Seleccionar Sala</option>
                   {ssala.map(ssalas=>(
-                  <option>{ssalas.nsala}</option>
+                  <option>{ssalas.id_sala}</option>
                   ))
                 }  
                 </select>
@@ -131,8 +154,8 @@ export default function NuevoContrato () {
               <div className="form-group">
                 <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setArtista(e.target.value)}>
                   <option value selected disabled>Seleccionar Artista</option>
-                  {usuario.map(contratos=>(
-                  <option>{contratos.username}</option>
+                  {usuario.map(usuario=>(
+                  <option>{usuario.id_usuario}</option>
                   ))
                   }  
                 </select>
@@ -142,7 +165,7 @@ export default function NuevoContrato () {
             <div className="col-12 col-md-4">
               <div className="form-group">
               <label htmlFor="usuario_clave_2" className="bmd-label-floating">Plazo del Contrato</label>
-                <input type="date" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20} 
+                <input type="text" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20} 
                 onChange={(e)=>setPlazo(e.target.value)} />
               </div>
             </div>
@@ -150,7 +173,7 @@ export default function NuevoContrato () {
             <div className="col-12 col-md-4">
               <div className="form-group">
               <label htmlFor="usuario_clave_2" className="bmd-label-floating">Precio del Contrato $</label>
-                <input type="number" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20} 
+                <input type="number" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20} 
                 onChange={(e)=>setValor(e.target.value)} />
               </div>
             </div>
@@ -158,7 +181,7 @@ export default function NuevoContrato () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button type="button" onClick={guardarContrato} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

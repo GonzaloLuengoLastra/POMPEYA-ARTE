@@ -1,24 +1,42 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from "sweetalert2";
+import ImageUpload from "../ImageUpload";
 
 export default function ListarCategorias () {
 
-  const[productos,setProductos]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/productooos")
-    .then(res=>res.json())
-    .then((result)=>{
-      setProductos(result);
-    }
-  )
-  },[])
+  const[productos,setProductos]= useState([])
+  
+  const getProductos = ()=>{
+    axios.get("http://localhost:3001/getProductos").then((response)=>{
+      setProductos(response.data); 
+    });
+  }
 
-  const deleteProductos = async (id) => {
-    await axios.delete(`http://localhost:8080/deleteproducto/${id}`);
-  };
+  const deleteProductos = (val) =>{
+    Swal.fire({
+      title: 'Eliminar Producto',
+      text: "¿Desea eliminar el producto "+val.nombre_producto+" del sistema",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Eliminar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Producto eliminado!', '', 'success')
+        axios.delete(`http://localhost:3001/deleteProductos/${val.id_producto}`).then(()=>{
+      });
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+}
+
+  getProductos();
 
   return (
         
@@ -52,45 +70,45 @@ export default function ListarCategorias () {
   {/* Content */}
   <div className="container-fluid">
     <div className="table-responsive">
-      <table className="table table-dark table-sm">
+      <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th>#</th>
-            <th>NOMBRE PRODUCTO</th>
-            <th>SALA</th>
-            <th>ARTISTA</th>
-            <th>AÑO</th>
-            <th>CATEGORÍA</th>
-            <th>PRECIO</th>
-            <th>ACTUALIZAR</th>
-            <th>ELIMINAR</th>
+            <th className="text-dark">#</th>
+            <th className="text-dark">NOMBRE PRODUCTO</th>
+            <th className="text-dark">SALA</th>
+            <th className="text-dark">ARTISTA</th>
+            <th className="text-dark">AÑO</th>
+            <th className="text-dark">CATEGORÍA</th>
+            <th className="text-dark">PRECIO</th>
+            <th className="text-dark">ACTUALIZAR</th>
+            <th className="text-dark">ELIMINAR</th>
           </tr>
         </thead>
         <tbody>
-        {productos.map(producto=>(
-          <tr className="text-center">
-          <td>{producto.id}</td>
-          <td>{producto.nombres}</td>
-          <td>{producto.sala}</td>
-          <td>{producto.artista}</td>
-          <td>{producto.año}</td>
-          <td>{producto.categoria}</td>
-          <td>{producto.precio}</td>
+        {productos.map((val, key)=>{
+          return <tr className="text-center">
+          <td>{val.id_producto}</td>
+          <td>{val.nombre_producto}</td>
+          <td>{val.id_sala}</td>
+          <td>{val.id_usuario}</td>
+          <td>{val.fecha_producto}</td>
+          <td>{val.id_categoria}</td>
+          <td>{val.id_precio}</td>
             <td>
-              <Link to={`/ActualizarProducto/${producto.id}`} className="btn btn-success">
+              <Link to={`/ActualizarProducto/${val.id_producto}`} className="btn btn-success">
                 <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
               <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deleteProductos(producto.id)}>
+                <button type="button" className="btn btn-warning" onClick={() => deleteProductos(val)}>
                   <i className="far fa-trash-alt" />
                 </button>
               </form>
             </td>
           </tr>
-         ))
-         } 
+         })
+        } 
         </tbody>
       </table>
     </div>

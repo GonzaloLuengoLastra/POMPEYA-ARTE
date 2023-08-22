@@ -1,44 +1,60 @@
 import axios from "axios";
-import React, { useEffect} from 'react';
-import { Link, Router, useNavigate, useParams } from 'react-router-dom';
+import React, {  useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Header from '../Header';
+import NavBar from '../NavBar';
+import Swal from 'sweetalert2';
 
 export default function ActualizarCategoria () {
   
   let navigate = useNavigate();
 
-  const { id } = useParams();
+  const { id_categoria } = useParams();
 
   const[ncategoria,setNcategoria]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
-  const[categoria,setCategoria]=React.useState([])
 
 
   useEffect(() => {
-    loadUser();
-  }, []);
+    axios.get('http://localhost:3001/editCategoria/'+id_categoria)
+    .then(res => {
+      setNcategoria(res.data[0].nombre_categoria)
+      setDescripcion(res.data[0].descripcion_categoria)
+    })
+    .catch(err => console.log(err));
+  }, [])
 
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const categoria={ncategoria,descripcion}
-    console.log(categoria)
-    fetch(`http://localhost:8080/editt/${id}`,{
-      method:"PUT",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(categoria)
-
-    }).then(()=>{
-      console.log("Categoria editada")
+  const updateCategoria = (e) =>{
+    Swal.fire({
+      title: 'Actualizar Categoría',
+      text: "¿Desea actualizar la categoría en el sistema?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Categoría actualizada!', '', 'success')
+        axios.put('http://localhost:3001/updateCategoria/'+id_categoria, {
+        nombre_categoria:ncategoria,
+        descripcion_categoria:descripcion
+      }).then(()=>{
+        console.log("Tipo de contrato registrado");
+        
+      });
+      navigate("/ListarCategorias");
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
     })
   }
-
-  const loadUser = async () => {
-    const result = await axios.get(`http://localhost:8080/editt/${id}`);
-    setCategoria(result.data);
-  };
 
 	return (
     
 	  <div>
+      <Header/>
+      <NavBar/>
 		<div class="content-wrapper">
 		{/* Page content */}
 		<div className="full-box page-header">
@@ -75,7 +91,7 @@ export default function ActualizarCategoria () {
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombre Categoría</label>
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
-                defaultValue={categoria.ncategoria}
+                defaultValue={ncategoria}
                 onChange={(e)=>setNcategoria(e.target.value)}
                 />
               </div>
@@ -84,7 +100,7 @@ export default function ActualizarCategoria () {
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Descripción</label>
                 <input type="text"  className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
-                defaultValue={categoria.descripcion}
+                defaultValue={descripcion}
                 onChange={(e)=>setDescripcion(e.target.value)}
                 />
               </div>
@@ -94,7 +110,7 @@ export default function ActualizarCategoria () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button type="button" onClick={updateCategoria} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
     <div className="alert alert-danger text-center" role="alert">

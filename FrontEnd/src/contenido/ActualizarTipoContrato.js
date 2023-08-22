@@ -1,42 +1,56 @@
 import axios from "axios";
-import React, {  useEffect, useState } from 'react';
+import React, {  useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from 'sweetalert2';
 
 export default function ActualizarTipoContrato () {
 
   let navigate = useNavigate();
 
-  const { id } = useParams();
+  const { id_tipo_contrato } = useParams();
 
   const[ntipocontrato,setNtipocontrato]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
-  const[tcontrato,setTcontrato]=React.useState([])
 
 
   useEffect(() => {
-    loadUser();
-  }, []);
+    axios.get('http://localhost:3001/editt/'+id_tipo_contrato)
+    .then(res => {
+      setNtipocontrato(res.data[0].nombre_tipo_contrato);
+      setDescripcion(res.data[0].descripcion_tipo_contrato)
+    })
+    .catch(err => console.log(err));
+  }, [])
 
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const tcontrato={ntipocontrato,descripcion}
-    console.log(tcontrato)
-    fetch(`http://localhost:8080/edittc/${id}`,{
-      method:"PUT",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(tcontrato)
-
-    }).then(()=>{
-      console.log("Tipo COntrato editado")
+  const updateTipoContrato = (e) =>{
+    Swal.fire({
+      title: 'Actualizar Tipo de contrato',
+      text: "¿Desea actualizar el tipo de contrato en el sistema?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Tipo de Contrato actualizado!', '', 'success')
+        axios.put('http://localhost:3001/updateTipoContrato/'+id_tipo_contrato, {
+        nombre_tipo_contrato:ntipocontrato,
+        descripcion_tipo_contrato:descripcion
+      }).then(()=>{
+        console.log("Tipo de contrato registrado");
+        
+      });
+      navigate("/ListarTipoContratos");
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
     })
   }
+  
 
-  const loadUser = async () => {
-    const result = await axios.get(`http://localhost:8080/gettc/${id}`);
-    setTcontrato(result.data);
-  };
 
 	return (
 	  <div>
@@ -77,8 +91,9 @@ export default function ActualizarTipoContrato () {
             <div className="col-12 col-md-5">
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombre Tipo de Contrato</label>
+                {ntipocontrato}
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
-                defaultValue={tcontrato.ntipocontrato}
+                defaultValue={ntipocontrato}
                 onChange={(e)=>setNtipocontrato(e.target.value)}/>
               </div>
             </div>
@@ -86,7 +101,7 @@ export default function ActualizarTipoContrato () {
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Descripción</label>
                 <input type="text" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
-                defaultValue={tcontrato.descripcion}
+                defaultValue={descripcion}
                 onChange={(e)=>setDescripcion(e.target.value)}/>
               </div>
             </div>
@@ -95,14 +110,9 @@ export default function ActualizarTipoContrato () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button type="button" onClick={updateTipoContrato} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
-    <div className="alert alert-danger text-center" role="alert">
-      <p><i className="fas fa-exclamation-triangle fa-5x" /></p>
-      <h4 className="alert-heading">¡Ocurrió un error inesperado!</h4>
-      <p className="mb-0">Lo sentimos, no podemos mostrar la información solicitada debido a un error.</p>
-    </div>
   </div>
   </div>
 	  </div>

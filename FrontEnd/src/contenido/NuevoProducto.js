@@ -1,24 +1,24 @@
 import * as React from 'react';
 import axios from "axios";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from 'sweetalert2';
 import ImageUpload from '../ImageUpload';
 
 export default function NuevoProducto() {
   const[nombres,setNombre]=React.useState('')
   const[sala,setSala]=React.useState('')
   const[artista,setArtista]=React.useState('')
-  const[año,setAño]=React.useState('')
+  const[fecha, setFecha]=React.useState('')
   const[categoria,setCategoria]=React.useState('')
   const[precio,setPrecio]=React.useState('')
   const[pintura,setPintura]=React.useState('')
-
-
+  const navigate = useNavigate();
 
   const[usuario,setUsuario]=React.useState([])
   React.useEffect(()=>{
-    fetch("http://localhost:8080/hola/4")
+    fetch("http://localhost:3001/usuarios")
     .then(res=>res.json())
     .then((result)=>{
       setUsuario(result);
@@ -26,9 +26,29 @@ export default function NuevoProducto() {
   )
   },[])
 
+  const[precioo,setPPrecio]=React.useState([])
+  React.useEffect(()=>{
+    fetch("http://localhost:3001/getPrecios")
+    .then(res=>res.json())
+    .then((result)=>{
+      setPPrecio(result);
+    }
+  )
+  },[])
+
+  const[cate,setCate]=React.useState([])
+  React.useEffect(()=>{
+    fetch("http://localhost:3001/getCategorias")
+    .then(res=>res.json())
+    .then((result)=>{
+      setCate(result);
+    }
+  )
+  },[])
+
   const[ssala,setSsala]=React.useState([])
   React.useEffect(()=>{
-    fetch("http://localhost:8080/salas")
+    fetch("http://localhost:3001/getSalas")
     .then(res=>res.json())
     .then((result)=>{
       setSsala(result);
@@ -36,29 +56,34 @@ export default function NuevoProducto() {
   )
   },[])
 
-  /*const[ttipo,setTtipo]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/Tcontratos")
-    .then(res=>res.json())
-    .then((result)=>{
-      setTtipo(result);
-    }
-  )
-  },[])*/
-
-  const handleClick=(e)=>{
-    
-
-    e.preventDefault()
-    const producto={nombres,sala,artista,año,categoria,precio, pintura}
-    console.log(producto)
-    fetch("http://localhost:8080/producto",{
-      method:"POST",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(producto)
-
-    }).then(()=>{
-      console.log("Estudiante añadido")
+  const guardarProducto = (val) =>{
+    Swal.fire({
+      title: 'Guardar Producto',
+      text: "¿Desea guardar el producto en el sistema?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Producto guardado!', '', 'success')
+        axios.post("http://localhost:3001/productos", {
+          nombre_producto: nombres,
+          fecha_producto: fecha,
+          imagen_producto: pintura,
+          id_usuario: artista,
+          id_categoria: categoria,
+          id_precio: precio,
+          id_sala: sala
+      }).then(()=>{
+        console.log("Contrato registrado");
+        
+      });
+      navigate("/ListarProductos");
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
     })
   }
   
@@ -108,14 +133,13 @@ export default function NuevoProducto() {
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Año Creación</label>
                 <input type="date" pattern="" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
-                onChange={(e)=>setAño(e.target.value)}/>
+                onChange={(e)=>setFecha(e.target.value)}/>
               </div>
             </div>
             <div className="col-12 col-md-6">
               <div className="form-group">
                 <label htmlFor="usuario_direccion" className="bmd-label-floating">Pintura</label>
-                <ImageUpload/>
-                <input hidden type="text" pattern="" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
+                <input type="file" onChange={(e)=>setPintura(e.target.value)} pattern="" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
                 />
               </div>
             </div>
@@ -132,7 +156,7 @@ export default function NuevoProducto() {
                 <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setArtista(e.target.value)}>
                   <option value selected disabled>Seleccione al Artista</option>
                   {usuario.map(contratos=>(
-                  <option>{contratos.username}</option>
+                  <option>{contratos.id_usuario}</option>
                   ))
                   }
                 </select>
@@ -150,8 +174,10 @@ export default function NuevoProducto() {
               <div className="form-group">
                 <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setCategoria(e.target.value)}>
                   <option value selected disabled>Seleccione una categoría</option>
-                  <option>Categoría 1</option>
-
+                  {cate.map(catee=>(
+                  <option>{catee.id_categoria}</option>
+                  ))
+                }
                 </select>
               </div>
             </div>
@@ -167,9 +193,10 @@ export default function NuevoProducto() {
               <div className="form-group">
                 <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setPrecio(e.target.value)}>
                   <option value selected disabled>Seleccione un Precio</option>
-                  <option value={1}>Precio 1</option>
-                  <option value={2}>Precio 2</option>
-                  <option value={3}>Precio 3</option>
+                  {precioo.map(ptr=>(
+                  <option>{ptr.id_precio}</option>
+                  ))
+                }
                 </select>
               </div>
             </div>
@@ -186,7 +213,7 @@ export default function NuevoProducto() {
                 <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setSala(e.target.value)}>
                   <option value selected disabled>Seleccione una Sala de Exhibición</option>
                   {ssala.map(ssalas=>(
-                  <option>{ssalas.nsala}</option>
+                  <option>{ssalas.id_sala}</option>
                   ))
                 }
                 </select>
@@ -198,7 +225,7 @@ export default function NuevoProducto() {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button type="button" onClick={guardarProducto} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

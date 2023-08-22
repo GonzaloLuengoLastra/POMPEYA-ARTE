@@ -65,11 +65,11 @@ function App() {
         <Route path="/BuscarUsuario" element={<BuscarUsuario/>}/>
         <Route path="/NuevoProducto" element={<NuevoProducto/>}/>
         <Route path="/ListarProductos" element={<ListarProductos/>}/>
-        <Route path="/ActualizarProducto" element={<ActualizarProducto/>}/>
+        <Route path="/ActualizarProducto/:id_producto" element={<ActualizarProducto/>}/>
         <Route path="/BuscarProducto" element={<BuscarProducto/>}/>
         <Route path="/NuevaCategoria" element={<NuevaCategoria/>}/>
         <Route path="/ListarCategorias" element={<ListarCategorias/>}/>
-        <Route path="/ActualizarCategoria" element={<ActualizarCategoria/>}/>
+        <Route path="/ActualizarCategoria/:id_categoria" element={<ActualizarCategoria/>}/>
         <Route path="/BuscarCategoria" element={<BuscarCategoria/>}/>
         <Route path="/NuevaSala" element={<NuevaSala/>}/>
         <Route path="/ListarSalas" element={<ListarSalas/>}/>
@@ -77,27 +77,27 @@ function App() {
         <Route path="/BuscarSala" element={<BuscarSala/>}/>
         <Route path="/NuevoPrecio" element={<NuevoPrecio/>}/>
         <Route path="/ListarPrecios" element={<ListarPrecios/>}/>
-        <Route path="/ActualizarPrecio" element={<ActualizarPrecio/>}/>
+        <Route path="/ActualizarPrecio/:id_precio" element={<ActualizarPrecio/>}/>
         <Route path="/BuscarPrecio" element={<BuscarPrecio/>}/>
         <Route path="/NuevoTipoVenta" element={<NuevoTipoVenta/>}/>
         <Route path="/ListarTipoVentas" element={<ListarTipoVentas/>}/>
-        <Route path="/ActualizarTipoVenta" element={<ActualizarTipoVenta/>}/>
+        <Route path="/ActualizarTipoVenta/:id_tipo_venta" element={<ActualizarTipoVenta/>}/>
         <Route path="/BuscarTipoVenta" element={<BuscarTipoVenta/>}/>
         <Route path="/NuevoTipoPago" element={<NuevoTipoPago/>}/>
         <Route path="/ListarTipoPagos" element={<ListarTipoPagos/>}/>
-        <Route path="/ActualizarTipoPago" element={<ActualizarTipoPago/>}/>
+        <Route path="/ActualizarTipoPago/:id_tipo_pago" element={<ActualizarTipoPago/>}/>
         <Route path="/BuscarTipoPago" element={<BuscarTipoPago/>}/>
         <Route path="/NuevaIncorporacion" element={<NuevaIncorporacion/>}/>
         <Route path="/ListarIncorporaciones" element={<ListarIncorporaciones/>}/>
-        <Route path="/ActualizarIncorporacion/" element={<ActualizarIncorporacion/>}/>
+        <Route path="/ActualizarIncorporacion/:id_incor" element={<ActualizarIncorporacion/>}/>
         <Route path="/BuscarIncorporacion" element={<BuscarIncorporacion/>}/>
         <Route path="/NuevoTipoContrato" element={<NuevoTipoContrato/>}/>
         <Route path="/ListarTipoContratos" element={<ListarTipoContratos/>}/>
-        <Route path="/ActualizarTipoContrato" element={<ActualizarTipoContrato/>}/>
+        <Route path="/ActualizarTipoContrato/:id_tipo_contrato/" element={<ActualizarTipoContrato/>}/>
         <Route path="/BuscarTipoContrato" element={<BuscarTipoContrato/>}/>
         <Route path="/NuevoContrato" element={<NuevoContrato/>}/>
         <Route path="/ListarContrato" element={<ListarContrato/>}/>
-        <Route path="/ActualizarContrato" element={<ActualizarContrato/>}/>
+        <Route path="/ActualizarContrato/:id_contrato" element={<ActualizarContrato/>}/>
         <Route path="/BuscarContrato" element={<BuscarContrato/>}/>
         <Route path="/ProductoUnico" element={<ProductoUnico/>}/>
         <Route path="/RecuperarContraseña" element={<RecuperarContraseña/>}/>

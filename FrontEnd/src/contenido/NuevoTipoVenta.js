@@ -1,24 +1,39 @@
-import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Axios from 'axios';
+import Swal from 'sweetalert2';
 
 export default function NuevoTipoVenta () {
 
-  const[ntipoventa,setNtipoventa]=React.useState('')
-  const[descripcion,setDescripcion]=React.useState('')
+  const navigate = useNavigate();
+  const[ntipoventa,setNtipoventa]= useState('')
+  const[descripcion,setDescripcion]= useState('')
 
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const Tipoventa={ntipoventa,descripcion}
-    console.log(Tipoventa)
-    fetch("http://localhost:8080/Tventa",{
-      method:"POST",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(Tipoventa)
-
-    }).then(()=>{
-      console.log("Estudiante añadido")
+  const guardarTipoVenta = (val) =>{
+    Swal.fire({
+      title: 'Guardar Tipo de Venta',
+      text: "¿Desea guardar el tipo de venta en el sistema?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Tipo de Venta guardado!', '', 'success')
+        Axios.post("http://localhost:3001/tventa", {
+        nombre_tipo_venta:ntipoventa,
+        descripcion_tipo_venta:descripcion
+      }).then(()=>{
+        console.log("Tipo de venta registrado");
+        
+      });
+      navigate("/ListarTipoVentas");
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
     })
   }
     return (
@@ -76,7 +91,7 @@ export default function NuevoTipoVenta () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button type="button" onClick={guardarTipoVenta} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

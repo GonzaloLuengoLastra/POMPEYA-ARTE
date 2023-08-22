@@ -3,44 +3,94 @@ import React, {  useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from "../Header";
 import NavBar from "../NavBar";
+import Swal from 'sweetalert2';
 
 export default function ActualizarContrato () {
   
   let navigate = useNavigate();
 
-  const { id } = useParams();
+  const { id_contrato } = useParams();
 
-  const[descripcion,setDescripcion]=React.useState('')
-  const[tcontrato,setTcontrato]=React.useState('')
-  const[sala,setSala]=React.useState('')
-  const[artista,setArtista]=React.useState('')
-  const[plazo,setPlazo]=React.useState('')
-  const[valor,setValor]=React.useState('')
-  const[contrato,setContrato]=React.useState([])
-
+  const[descripcion,setDescripcion]= useState('')
+  const[tcontrato,setTcontrato]= useState('')
+  const[sala,setSala]= useState('')
+  const[plazo,setPlazo]= useState()
+  const[valor,setValor]= useState('')
+  const[artista,setArtista]= useState('')
 
   useEffect(() => {
-    loadUser();
-  }, []);
-
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const contrato={descripcion,tcontrato,sala,artista,plazo,valor}
-    console.log(contrato)
-    fetch(`http://localhost:8080/editc/${id}`,{
-      method:"PUT",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(contrato)
-
-    }).then(()=>{
-      console.log("Sala editada")
+    axios.get('http://localhost:3001/editContrato/'+id_contrato)
+    .then(res => {
+      setDescripcion(res.data[0].descripcion_contrato)
+      setPlazo(res.data[0].plazo_contrato)
+      setValor(res.data[0].precio_contrato)
+      setTcontrato(res.data[0].id_tipo_contrato)
+      setSala(res.data[0].id_sala)
+      setArtista(res.data[0].id_usuario)
     })
-  }
+    .catch(err => console.log(err));
+  }, [])
 
-  const loadUser = async () => {
-    const result = await axios.get(`http://localhost:8080/getc/${id}`);
-    setContrato(result.data);
-  };
+  const[usuario,setUsuario]= useState([])
+    useEffect(()=>{
+      fetch("http://localhost:3001/usuarios")
+      .then(res=>res.json())
+      .then((result)=>{
+        setUsuario(result);
+      }
+    )
+    },[])
+    
+    const[ssala,setSsala]=useState([])
+    useEffect(()=>{
+      fetch("http://localhost:3001/getSalas")
+      .then(res=>res.json())
+      .then((result)=>{
+        setSsala(result);
+      }
+    )
+    },[])
+
+    const[ttipo,setTtipo]=useState([])
+    useEffect(()=>{
+      fetch("http://localhost:3001/getTContrato")
+      .then(res=>res.json())
+      .then((result)=>{
+        setTtipo(result);
+      }
+    )
+    },[])
+
+    const updateContrato = (e) =>{
+      Swal.fire({
+        title: 'Actualizar Contrato',
+        text: "¿Desea actualizar el contrato en el sistema?",
+        icon: 'warning',
+        showDenyButton: true,
+        confirmButtonText: 'Guardar',
+        denyButtonText: `Cancelar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire('Contrato actualizado!', '', 'success')
+          axios.put('http://localhost:3001/updateContrato/'+id_contrato, {
+          descripcion_contrato:descripcion,
+          plazo_contrato:plazo,
+          precio_contrato:valor,
+          id_tipo_contrato:tcontrato,
+          id_sala:sala,
+          id_usuario:artista
+        }).then(()=>{
+          console.log("Tipo de contrato registrado");
+          
+        });
+        navigate("/ListarContrato");
+        } else if (result.isDenied) {
+          Swal.fire('Operación cancelada', '', 'info')
+        }
+      })
+    }
+
 	return (
 	  <div>
       <Header/>
@@ -81,7 +131,7 @@ export default function ActualizarContrato () {
               <div className="form-group">
                 <label htmlFor="usuario_dni" className="bmd-label-floating">Descripción</label>
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20}
-                defaultValue={contrato.descripcion}
+                defaultValue={descripcion}
                 onChange={(e)=>setDescripcion(e.target.value)}  />
               </div>
             </div>
@@ -93,33 +143,36 @@ export default function ActualizarContrato () {
           <div className="row">
             <div className="col-4">
               <div className="form-group">
-                <select className="form-control" name="usuario_privilegio_reg">
+                <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setTcontrato(e.target.value)}>
                   <option value selected disabled>Seleccionar Tipo Contrato</option>
-                  <option value={1}>1</option>
-                  <option value={2}>2</option>
-                  <option value={3}>3</option>
+                  {ttipo.map(tipoo=>(
+                  <option>{tipoo.id_tipo_contrato}</option>
+                  ))
+              } 
                 </select>
               </div>
             </div>
 
             <div className="col-4">
               <div className="form-group">
-                <select className="form-control" name="usuario_privilegio_reg">
+                <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setSala(e.target.value)}>
                   <option value selected disabled>Seleccionar Sala</option>
-                  <option value={1}>Sala 1</option>
-                  <option value={2}>Sala 2</option>
-                  <option value={3}>Sala 3</option>
+                  {ssala.map(ssalas=>(
+                  <option>{ssalas.id_sala}</option>
+                  ))
+                }  
                 </select>
               </div>
             </div>
 
             <div className="col-4">
               <div className="form-group">
-                <select className="form-control" name="usuario_privilegio_reg">
+                <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setArtista(e.target.value)}>
                   <option value selected disabled>Seleccionar Artista</option>
-                  <option value={1}>Artista 1</option>
-                  <option value={2}>Artista 2</option>
-                  <option value={3}>Artista 3</option>
+                  {usuario.map(usuario=>(
+                  <option>{usuario.id_usuario}</option>
+                  ))
+                  }
                 </select>
               </div>
             </div>
@@ -128,7 +181,7 @@ export default function ActualizarContrato () {
               <div className="form-group">
               <label htmlFor="usuario_clave_2" className="bmd-label-floating">Plazo del Contrato</label>
                 <input type="date" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20} 
-                defaultValue={contrato.plazo}
+                defaultValue={plazo}
                 onChange={(e)=>setPlazo(e.target.value)} />
               </div>
             </div>
@@ -137,14 +190,14 @@ export default function ActualizarContrato () {
               <div className="form-group">
               <label htmlFor="usuario_clave_2" className="bmd-label-floating">Precio del Contrato $</label>
                 <input type="number" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20} 
-                defaultValue={contrato.valor}
+                defaultValue={valor}
                 onChange={(e)=>setValor(e.target.value)} />
               </div>
             </div>
           </div>
       
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="submit" className="btn btn-raised btn-success btn-sm" onClick={handleClick}><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button type="button" className="btn btn-raised btn-success btn-sm" onClick={updateContrato}><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
     <div className="alert alert-danger text-center" role="alert">

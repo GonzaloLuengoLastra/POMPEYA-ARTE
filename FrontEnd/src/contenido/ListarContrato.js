@@ -1,24 +1,43 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import Axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from 'sweetalert2';
 
 export default function ListarContrato () {
   
-  const[contrato,setContrato]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/contratos")
-    .then(res=>res.json())
-    .then((result)=>{
-      setContrato(result);
-    }
-  )
-  },[])
+  const  [listaContratos, setContrato] = useState([]);
 
-  const deleteContrato = async (id) => {
-    await axios.delete(`http://localhost:8080/editc/${id}`);
-  };
+  const getContrato = ()=>{
+    Axios.get("http://localhost:3001/getContrato").then((response)=>{
+      setContrato(response.data); 
+    });
+  }
+
+  const deleteContrato = (val) =>{
+      Swal.fire({
+        title: 'Eliminar Contrato',
+        text: "¿Desea eliminar el contrato del sistema",
+        icon: 'warning',
+        showDenyButton: true,
+        confirmButtonText: 'Eliminar',
+        denyButtonText: `Cancelar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire('Contrato eliminado!', '', 'success')
+          Axios.delete(`http://localhost:3001/deleteContrato/${val.id_contrato}`).then(()=>{
+          getContrato(); 
+        });
+        } else if (result.isDenied) {
+          Swal.fire('Operación cancelada', '', 'info')
+        }
+      })
+  }
+
+  getContrato();
+
     return (
         
       <div>
@@ -51,45 +70,47 @@ export default function ListarContrato () {
   {/* Content */}
   <div className="container-fluid">
     <div className="table-responsive">
-      <table className="table table-dark table-sm">
+      <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th>#</th>
-            <th>DESCRIPCIÓN</th>
-            <th>TIPO DE CONTRATO</th>
-            <th>SALA</th>
-            <th>ARTISTA</th>
-            <th>PLAZO</th>
-            <th>VALOR</th>
-            <th>ACTUALIZAR</th>
-            <th>ELIMINAR</th>
+            <th className="text-dark">#</th>
+            <th className="text-dark">DESCRIPCIÓN</th>
+            <th className="text-dark">TIPO DE CONTRATO</th>
+            <th className="text-dark">SALA</th>
+            <th className="text-dark">ARTISTA</th>
+            <th className="text-dark">PLAZO</th>
+            <th className="text-dark">VALOR</th>
+            <th className="text-dark">ACTUALIZAR</th>
+            <th className="text-dark">ELIMINAR</th>
           </tr>
         </thead>
         <tbody>
-        {contrato.map(contratos=>(
-          <tr className="text-center">
-            <td>{contratos.id}</td>
-            <td>{contratos.descripcion}</td>
-            <td>{contratos.sala}</td>
-            <td>{contratos.tipocontrato}</td>
-            <td>{contratos.artista}</td>
-            <td>{contratos.plazo}</td>
-            <td>{contratos.valor}</td>
+        {listaContratos.map((val, key)=>{
+          return <tr className="text-center" key={val.id_contrato}>
+            <td>{val.id_contrato}</td>
+            <td>{val.descripcion_contrato}</td>
+            <td>{val.id_sala}</td>
+            <td>{val.id_tipo_contrato}</td>
+            <td>{val.id_usuario}</td>
+            <td>{val.plazo_contrato}</td>
+            <td>{val.precio_contrato}</td>
             <td>
-              <Link to={`/ActualizarContrato/${contratos.id}`} className="btn btn-success">
+              <Link to={`/ActualizarContrato/${val.id_contrato}`} className="btn btn-success">
                 <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
               <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deleteContrato(contratos.id)}>
+              <button onClick={()=>{
+                  deleteContrato(val);
+                }} type="button" className="btn btn-warning">
                   <i className="far fa-trash-alt" />
                 </button>
               </form>
             </td>
           </tr>
-        ))
-      }   
+        })
+      }
         </tbody>
       </table>
     </div>

@@ -1,26 +1,53 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Axios from "axios";
+import Swal from 'sweetalert2';
 
 export default function NuevaIncorporacion () {
-
+  const navigate = useNavigate();
   const[vincorporacion,setVincorporacion]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
+  const[artista,setArtista]= React.useState('')
 
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const incorporacion={vincorporacion,descripcion}
-    console.log(incorporacion)
-    fetch("http://localhost:8080/Incorporacion",{
-      method:"POST",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(incorporacion)
+  const[usuario,setUsuario]= React.useState([])
+    React.useEffect(()=>{
+      fetch("http://localhost:3001/usuarios")
+      .then(res=>res.json())
+      .then((result)=>{
+        setUsuario(result);
+      }
+    )
+    },[])
 
-    }).then(()=>{
-      console.log("Incorporacion añadida")
-    })
-  }
+    const guardarIncor = (val) =>{
+      Swal.fire({
+        title: 'Guardar Incorporación',
+        text: "¿Desea guardar la incorporación en el sistema?",
+        icon: 'warning',
+        showDenyButton: true,
+        confirmButtonText: 'Guardar',
+        denyButtonText: `Cancelar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire('Incorporación guardada!', '', 'success')
+          Axios.post("http://localhost:3001/incor", {
+            descripcion_incor: descripcion,
+            valor_incor: vincorporacion,
+            id_usuario: artista
+        }).then(()=>{
+          console.log("Contrato registrado");
+          
+        });
+        navigate("/ListarIncorporaciones");
+        } else if (result.isDenied) {
+          Swal.fire('Operación cancelada', '', 'info')
+        }
+      })
+    }
+
     return (
       <div>
         <Header/>
@@ -78,11 +105,12 @@ export default function NuevaIncorporacion () {
           <div className="row">
             <div className="col-12">
               <div className="form-group">
-                <select className="form-control" name="usuario_privilegio_reg">
+                <select className="form-control" name="usuario_privilegio_reg" onChange={(e)=>setArtista(e.target.value)}>
                   <option value selected disabled>Seleccione un Artista</option>
-                  <option value={1}>Artista 1</option>
-                  <option value={2}>Artista 2</option>
-                  <option value={3}>Artista 3</option>
+                  {usuario.map(usuario=>(
+                  <option>{usuario.id_usuario}</option>
+                  ))
+                  } 
                 </select>
               </div>
             </div>
@@ -92,7 +120,7 @@ export default function NuevaIncorporacion () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button type="button" onClick={guardarIncor} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

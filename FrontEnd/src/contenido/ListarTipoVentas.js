@@ -1,24 +1,41 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Link, useParams } from "react-router-dom";
+import React, { useState } from "react";
+import Axios from "axios";
+import { Link } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from "sweetalert2";
 
 export default function ListarTipoVentas () {
 
-  const[tventas,setTventas]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/Tventas")
-    .then(res=>res.json())
-    .then((result)=>{
-      setTventas(result);
-    }
-  )
-  },[])
+  const[tventas,setTventas]= useState([])
 
-  const deleteTipoVentas = async (id) => {
-    await axios.delete(`http://localhost:8080/editt/${id}`);
-  };
+  const getTipoVenta = ()=>{
+    Axios.get("http://localhost:3001/getTVenta").then((response)=>{
+      setTventas(response.data); 
+    });
+  }
+
+  const deleteTipoVenta = (val) =>{
+    Swal.fire({
+      title: 'Eliminar Tipo de Venta',
+      text: "¿Desea eliminar el tipo de venta "+val.nombre_tipo_venta+" del sistema",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Eliminar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Tipo de Venta eliminado!', '', 'success')
+        Axios.delete(`http://localhost:3001/deleteTVenta/${val.id_tipo_venta}`).then(()=>{
+      });
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+}
+
+getTipoVenta();
 
     return (
         
@@ -52,37 +69,37 @@ export default function ListarTipoVentas () {
   {/* Content */}
   <div className="container-fluid">
     <div className="table-responsive">
-      <table className="table table-dark table-sm">
+      <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th>#</th>
-            <th>TIPO VENTA</th>
-            <th>DESCRIPCIÓN</th>
-            <th>ACTUALIZAR</th>
-            <th>ELIMINAR</th>
+            <th className="text-dark">#</th>
+            <th className="text-dark">TIPO VENTA</th>
+            <th className="text-dark">DESCRIPCIÓN</th>
+            <th className="text-dark">ACTUALIZAR</th>
+            <th className="text-dark">ELIMINAR</th>
           </tr>
         </thead>
         <tbody>
-        {tventas.map(tventa=>(
-          <tr className="text-center">
-            <td>{tventa.id}</td>
-            <td>{tventa.ntipoventa}</td>
-            <td>{tventa.descripcion}</td>
+        {tventas.map((val, key)=>{
+          return <tr className="text-center">
+            <td>{val.id_tipo_venta}</td>
+            <td>{val.nombre_tipo_venta}</td>
+            <td>{val.descripcion_tipo_venta}</td>
             <td>
-              <Link to={`/ActualizarTipoVenta/${tventa.id}`} className="btn btn-success">
+              <Link to={`/ActualizarTipoVenta/${val.id_tipo_venta}`} className="btn btn-success">
                 <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
               <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deleteTipoVentas(tventa.id)}>
+                <button type="button" className="btn btn-warning" onClick={() => deleteTipoVenta(val)}>
                   <i className="far fa-trash-alt" />
                 </button>
               </form>
             </td>
           </tr>
-          ))
-        } 
+          })
+        }
         </tbody>
       </table>
     </div>

@@ -1,5 +1,5 @@
-import Axios from "axios";
-import React, { useEffect, useState, useHistory} from 'react';
+import axios from "axios";
+import React, { useEffect, useState} from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
@@ -7,9 +7,10 @@ import Swal from 'sweetalert2';
 
 
 export default function ActualizarUsuario () {
-    const navigate = useNavigate();
+    let navigate = useNavigate();
 
-    const {id} = useParams();
+    const {id_usuario} = useParams();
+
     const [Rut, setRut] = useState("");
     const [nombre, setNombre] = useState("");
     const [Apellido, setApellido] = useState("");
@@ -21,33 +22,51 @@ export default function ActualizarUsuario () {
     const [Privilegio, setPrivilegio] = useState("");
 
     useEffect(() => {
-        Axios.get('http://localhost:3001/edit/'+id)
-        .then(res => {
-          setRut(res.data[0].rut)
-          setNombre(res.data[0].nombre)
-          setApellido(res.data[0].apellido)
-          setTelefono(res.data[0].telefono)
-          setDireccion(res.data[0].direccion)
-          setNombreUsuario(res.data[0].nombreUsuario)
-          setEmail(res.data[0].email)
-          setContrasena(res.data[0].contrasena)
-          setPrivilegio(res.data[0].privilegio)
-          console.log(res);
-        })
-        .catch(err => console.log(err));
+      axios.get('http://localhost:3001/edit/'+id_usuario)
+      .then(res => {
+        setRut(res.data[0].rut)
+        setNombre(res.data[0].nombre)
+        setApellido(res.data[0].apellido)
+        setTelefono(res.data[0].telefono)
+        setDireccion(res.data[0].direccion)
+        setNombreUsuario(res.data[0].nombreUsuario)
+        setEmail(res.data[0].email)
+        setContrasena(res.data[0].contrasena)
+        setPrivilegio(res.data[0].privilegio)
+      })
+      .catch(err => console.log(err));
     }, [])
-
-    const handleClick=(e)=>{
-      e.preventDefault()
-      const usuario={Rut,nombre,Apellido,Telefono,Direccion,NombreUsuario,Email,Contrasena,Privilegio}
-      console.log(usuario)
-      fetch(`http://localhost:3001/update/${id}`,{
-        method:"PUT",
-        headers:{"content-type":"application/json"},
-        body:JSON.stringify(usuario)
   
-      }).then(()=>{
-        console.log("Sala editada")
+    const updateUsuario = (e) =>{
+      Swal.fire({
+        title: 'Actualizar Usuario',
+        text: "¿Desea actualizar al usuario en el sistema?",
+        icon: 'warning',
+        showDenyButton: true,
+        confirmButtonText: 'Guardar',
+        denyButtonText: `Cancelar`,
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if (result.isConfirmed) {
+          Swal.fire('Usuario actualizado!', '', 'success')
+          axios.put('http://localhost:3001/updateUsuario/'+id_usuario, {
+          rut:Rut,
+          nombre:nombre,
+          apellido:Apellido,
+          telefono:Telefono,
+          direccion:Direccion,
+          nombreUsuario:NombreUsuario,
+          email:Email,
+          contrasena:Contrasena,
+          privilegio:Privilegio
+        }).then(()=>{
+          console.log("Tipo de contrato registrado");
+          
+        });
+        navigate("/ListarUsuarios");
+        } else if (result.isDenied) {
+          Swal.fire('Operación cancelada', '', 'info')
+        }
       })
     }
 
@@ -168,13 +187,14 @@ export default function ActualizarUsuario () {
       <fieldset>
         <legend style={{marginTop: 40}}><i className="fas fa-lock" /> &nbsp; Nueva contraseña</legend>
         <p>Para actualizar la contraseña de esta cuenta ingrese una nueva y vuelva a escribirla. En caso que no desee actualizarla debe dejar vacíos los dos campos de las contraseñas.</p>
+        {Contrasena}
         <div className="container-fluid">
           <div className="row">
             <div className="col-12 col-md-6">
               <div className="form-group">
                 <label htmlFor="usuario_clave_nueva_1" className="bmd-label-floating">Contraseña</label>
-                <input type="password" className="form-control" name="usuario_clave_nueva_1" id="usuario_clave_nueva_1" pattern="[a-zA-Z0-9$@.-]{7,100}" maxLength={100}
-                
+                <input type="password" defaultValue={Contrasena} className="form-control" name="usuario_clave_nueva_1" id="usuario_clave_nueva_1" pattern="[a-zA-Z0-9$@.-]{7,100}" maxLength={100}
+                onChange={e => setContrasena(e.target.value)}
                 />
               </div>
             </div>
@@ -229,7 +249,7 @@ export default function ActualizarUsuario () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-success btn-sm" ><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button type="button" onClick={updateUsuario} className="btn btn-raised btn-success btn-sm" ><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
   </div>

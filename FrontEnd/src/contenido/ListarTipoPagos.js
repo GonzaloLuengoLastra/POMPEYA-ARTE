@@ -1,24 +1,41 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { Link, useParams } from "react-router-dom";
+import React, { useState } from "react";
+import Axios from "axios";
+import { Link } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from "sweetalert2";
 
 export default function ListarTipoPagos () {
 
-  const[tipopago,setTipopago]=React.useState([])
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/Tpagos")
-    .then(res=>res.json())
-    .then((result)=>{
-      setTipopago(result);
-    }
-  )
-  },[])
+  const[tipopago,setTipopago]= useState([])
+  
+  const getTipoPago = ()=>{
+    Axios.get("http://localhost:3001/getTPago").then((response)=>{
+      setTipopago(response.data); 
+    });
+  }
 
-  const deleteTipoPagos = async (id) => {
-    await axios.delete(`http://localhost:8080/editt/${id}`);
-  };
+  const deleteTipoPago = (val) =>{
+    Swal.fire({
+      title: 'Eliminar Tipo de Pago',
+      text: "¿Desea eliminar el tipo de pago "+val.nombre_tipo_pago+" del sistema",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Eliminar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Tipo de Pago eliminado!', '', 'success')
+        Axios.delete(`http://localhost:3001/deleteTPago/${val.id_tipo_pago}`).then(()=>{
+      });
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+}
+
+getTipoPago();
 
     return (
         
@@ -52,36 +69,36 @@ export default function ListarTipoPagos () {
   {/* Content */}
   <div className="container-fluid">
     <div className="table-responsive">
-      <table className="table table-dark table-sm">
+      <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th>#</th>
-            <th>TIPO PAGO</th>
-            <th>DESCRIPCIÓN</th>
-            <th>ACTUALIZAR</th>
-            <th>ELIMINAR</th>
+            <th className="text-dark">#</th>
+            <th className="text-dark">TIPO PAGO</th>
+            <th className="text-dark">DESCRIPCIÓN</th>
+            <th className="text-dark">ACTUALIZAR</th>
+            <th className="text-dark">ELIMINAR</th>
           </tr>
         </thead>
         <tbody>
-        {tipopago.map(tipopagos=>(
-          <tr className="text-center">
-            <td>{tipopagos.id}</td>
-            <td>{tipopagos.ntipopago}</td>
-            <td>{tipopagos.descripcion}</td>
+        {tipopago.map((val, key)=>{
+          return <tr className="text-center">
+            <td>{val.id_tipo_pago}</td>
+            <td>{val.nombre_tipo_pago}</td>
+            <td>{val.descripcion_tipo_pago}</td>
             <td>
-              <Link to={`/ActualizarTipoPago/${tipopagos.id}`} className="btn btn-success">
+              <Link to={`/ActualizarTipoPago/${val.id_tipo_pago}`} className="btn btn-success">
                 <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
               <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deleteTipoPagos(tipopagos.id)}>
+                <button type="button" className="btn btn-warning" onClick={() => deleteTipoPago(val)}>
                   <i className="far fa-trash-alt" />
                 </button>
               </form>
             </td>
           </tr>
-          ))
+          })
         } 
         </tbody>
       </table>

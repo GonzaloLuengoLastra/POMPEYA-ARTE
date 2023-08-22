@@ -1,42 +1,54 @@
 import axios from "axios";
-import React, {  useEffect, useState } from 'react';
+import React, {  useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from 'sweetalert2';
 
 export default function ActualizarTipoVenta () {
  
   let navigate = useNavigate();
 
-  const { id } = useParams();
+  const { id_tipo_venta } = useParams();
 
   const[ntipoventa,setNtipoventa]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
-  const[tventas,setTventas]=React.useState([])
 
 
   useEffect(() => {
-    loadUser();
-  }, []);
+    axios.get('http://localhost:3001/editTipoVenta/'+id_tipo_venta)
+    .then(res => {
+      setNtipoventa(res.data[0].nombre_tipo_venta)
+      setDescripcion(res.data[0].descripcion_tipo_venta)
+    })
+    .catch(err => console.log(err));
+  }, [])
 
-  const handleClick=(e)=>{
-    e.preventDefault()
-    const tventas={ntipoventa,descripcion}
-    console.log(tventas)
-    fetch(`http://localhost:8080/edittv/${id}`,{
-      method:"PUT",
-      headers:{"content-type":"application/json"},
-      body:JSON.stringify(tventas)
-
-    }).then(()=>{
-      console.log("tipo de venta editado")
+  const updateTipoVenta = (e) =>{
+    Swal.fire({
+      title: 'Actualizar Tipo de Venta',
+      text: "¿Desea actualizar el tipo de venta en el sistema?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Tipo de Venta actualizado!', '', 'success')
+        axios.put('http://localhost:3001/updateTipoVenta/'+id_tipo_venta, {
+        nombre_tipo_venta:ntipoventa,
+        descripcion_tipo_venta:descripcion
+      }).then(()=>{
+        console.log("Tipo de contrato registrado");
+        
+      });
+      navigate("/ListarTipoVentas");
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
     })
   }
-
-  const loadUser = async () => {
-    const result = await axios.get(`http://localhost:8080/gettv/${id}`);
-    setTventas(result.data);
-  };
   
 	return (
 	  <div>
@@ -78,7 +90,7 @@ export default function ActualizarTipoVenta () {
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombre Tipo Venta</label>
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
-                defaultValue={tventas.ntipoventa}
+                defaultValue={ntipoventa}
                 onChange={(e)=>setNtipoventa(e.target.value)} />
               </div>
             </div>
@@ -86,7 +98,7 @@ export default function ActualizarTipoVenta () {
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Descripción</label>
                 <input type="text" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35}
-                defaultValue={tventas.descripcion}
+                defaultValue={descripcion}
                 onChange={(e)=>setDescripcion(e.target.value)} />
               </div>
             </div>
@@ -95,7 +107,7 @@ export default function ActualizarTipoVenta () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="submit" onClick={handleClick} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button type="button" onClick={updateTipoVenta} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
     <div className="alert alert-danger text-center" role="alert">

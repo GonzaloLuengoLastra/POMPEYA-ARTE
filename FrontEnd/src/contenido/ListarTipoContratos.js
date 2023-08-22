@@ -1,25 +1,42 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
+import Axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Swal from "sweetalert2";
 
 export default function ListarTipoContratos () {
   
 
-  const[tcontrato,setTcontrato]=React.useState([])
+  const[tcontrato,setTcontrato]= useState([])
 
-  React.useEffect(()=>{
-    fetch("http://localhost:8080/Tcontratos")
-    .then(res=>res.json())
-    .then((result)=>{
-      setTcontrato(result);
-    }
-  )
-  },[])
-  const deleteTipoContratos = async (id) => {
-    await axios.delete(`http://localhost:8080/editt/${id}`);
-  };
+  const getTipoContrato = ()=>{
+    Axios.get("http://localhost:3001/getTContrato").then((response)=>{
+      setTcontrato(response.data); 
+    });
+  }
+
+  const deleteTipoContrato = (val) =>{
+    Swal.fire({
+      title: 'Eliminar Tipo de Contrato',
+      text: "¿Desea eliminar el tipo de contrato "+val.nombre_tipo_contrato+" del sistema",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Eliminar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Tipo de Contrato eliminada!', '', 'success')
+        Axios.delete(`http://localhost:3001/deleteTContrato/${val.id_tipo_contrato}`).then(()=>{
+      });
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+}
+
+getTipoContrato();
 
     return (
         
@@ -53,37 +70,40 @@ export default function ListarTipoContratos () {
   {/* Content */}
   <div className="container-fluid">
     <div className="table-responsive">
-      <table className="table table-dark table-sm">
+      <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th>#</th>
-            <th>NOMBRE</th>
-            <th>DESCRIPCIÓN</th>
-            <th>ACTUALIZAR</th>
-            <th>ELIMINAR</th>
+            <th className="text-dark">#</th>
+            <th className="text-dark">NOMBRE</th>
+            <th className="text-dark">DESCRIPCIÓN</th>
+            <th className="text-dark">ACTUALIZAR</th>
+            <th className="text-dark">ELIMINAR</th>
           </tr>
         </thead>
         <tbody>
-        {tcontrato.map(categoria=>(
-          <tr className="text-center">
-            <td>{categoria.id}</td>
-            <td>{categoria.ntipocontrato}</td>
-            <td>{categoria.descripcion}</td>
+        {tcontrato.map((val, key)=>{
+          return <tr className="text-center">
+            <td>{val.id_tipo_contrato}</td>
+            <td>{val.nombre_tipo_contrato}</td>
+            <td>{val.descripcion_tipo_contrato}</td>
             <td>
-              <Link to={`/ActualizarTipoContrato/${categoria.id}`} className="btn btn-success">
+              <Link to={`/ActualizarTipoContrato/${val.id_tipo_contrato}`} className="btn btn-success">
                 <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
               <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deleteTipoContratos(categoria.id)}>
+                <button type="button" className="btn btn-warning" 
+                onClick={()=>{
+                  deleteTipoContrato(val);
+                }}>
                   <i className="far fa-trash-alt" />
                 </button>
               </form>
             </td>
           </tr>
-          ))
-        } 
+          })
+        }
         </tbody>
       </table>
     </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import Validation from '../LoginValidation';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 /*const [values, setValues] = useState({
   nombreUsuario: '',
@@ -42,7 +43,7 @@ export default function Login() {
               <label className="form-label" htmlFor="form2Example28">Contraseña</label>
             </div>
             <div className="pt-1 mb-4">
-              <button className="btn btn-info btn-lg btn-block" type="button">Ingresar</button>
+              <Link to="/Dashboard" className="btn btn-info btn-lg btn-block" type="button">Ingresar</Link>
             </div>
             <p className="small mb-5 pb-lg-2"><a className="text-muted" href="#!">¿Recuperar Contraseña?</a></p>
             <p>¿No tienes una cuenta? <a href="#!" className="link-info">Registrarse</a></p>
