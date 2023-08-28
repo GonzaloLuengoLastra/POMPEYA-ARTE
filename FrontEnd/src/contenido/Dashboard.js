@@ -1,9 +1,11 @@
-import React, { Component } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link} from 'react-router-dom';
+import React, { useEffect, useState } from "react";
 import Header from '../Header';
 import NavBar from '../NavBar';
+import Axios from "axios";
 
 export default function Dashboard () {
+
 
     return (
       <div>
@@ -13,6 +15,7 @@ export default function Dashboard () {
           
     {/* Main container */}
 <main className="full-box main-container">
+  
   {/* Nav lateral */}
   {/* Page content */}
   <section className="full-box page-content">
@@ -20,7 +23,7 @@ export default function Dashboard () {
       <a href="#" className="float-left show-nav-lateral">
         <i className="fas fa-exchange-alt" />
       </a>
-      <a href="user-update.html">
+      <a  href="#">
         <i className="fas fa-user-cog" />
       </a>
       <a href="#" className="btn-exit-system">

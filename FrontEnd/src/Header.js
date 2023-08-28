@@ -1,8 +1,28 @@
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
-export default class Header extends Component {
-  render() {
+export default function Header (){
+
+  const navigate = useNavigate();
+  const cerrarSesion = (val) =>{
+    Swal.fire({
+      title: 'Cerrar Sesión',
+      text: "¿Desea cerrar la sesión?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Aceptar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Lo esperamos!', '', 'success')
+        navigate('/Login')
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+}
+
     return (
       <div>
   <nav className="main-header navbar navbar-expand navbar-white navbar-light">
@@ -21,9 +41,9 @@ export default class Header extends Component {
         </a>
       </li>
       <li className="nav-item">
-        <Link className="nav-link" data-widget="" to="/" role="button">
+        <button onClick={cerrarSesion} className="nav-link" data-widget="" role="button">
         <i class="fa-sharp fa-solid fa-lock"></i>
-        </Link>
+        </button>
       </li>
     </ul>
   </nav>
@@ -31,4 +51,3 @@ export default class Header extends Component {
 
     );
   }
-}

@@ -2,10 +2,31 @@ const express = require("express");
 const app = express();
 const mysql = require("mysql");
 const cors = require("cors");
-const multer = require("multer");
+const bcryp = require("bcrypt");
+const saltRounds = 10;
 
-app.use(cors());
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+
+app.use(cors({
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extends: true }));
 app.use(express.json());
+
+app.use(session({
+    key: "userId",
+    secret: "subscribe",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        expires: 1200 * 1200 * 1200,
+    },
+}));
 
 //Conexion BD MySQL
 const db = mysql.createConnection({
@@ -13,6 +34,41 @@ const db = mysql.createConnection({
     user: "root",
     password: "",
     database: "pompeya"
+});
+
+app.get("/login", (req, res) => {
+    if(req.session.user) {
+        res.send({loggedIn: true, user: req.session.user});
+    } else {
+        res.send({loggedIn: false});
+    }
+});
+
+app.post("/login", (req, res) => {
+    const nombreUsuario = req.body.nombreUsuario;
+    const contrasena = req.body.contrasena;
+
+    db.query("SELECT * FROM usuarios WHERE nombreUsuario = ?;",
+    nombreUsuario,
+    (err, result) => {
+        if(err){
+            res.send({ err: err});
+        }
+        if(result.length > 0){
+            bcryp.compare(contrasena, result[0].contrasena, (err, response) =>{
+                if(response){
+                    req.session.user = result;
+                    console.log(req.session.user);
+                    res.send(result);
+                }else{
+                    res.send({message: "Datos erroneos"});
+                }
+            })
+        }else{
+            res.send({message: "Usuario no existe"});
+        }
+    }
+    )
 });
 
 //---------------------Comienzo Incorporacion--------------------------
@@ -178,15 +234,23 @@ app.post("/create", (req, res) => {
     const constrasena = req.body.contrasena;
     const privilegio = req.body.privilegio;
 
-    db.query('INSERT INTO usuarios(rut, nombre, apellido, telefono, direccion, nombreUsuario, email, contrasena, privilegio) VALUES(?,?,?,?,?,?,?,?,?)', 
-    [rut, nombre, apellido, telefono, direccion, nombreUsuario, email, constrasena, privilegio]),
-    (err, result) =>{
+    bcryp.hash(constrasena, saltRounds, (err, hash) => {
         if(err){
             console.log(err);
-        }else{
-            res.send(result);
         }
-    };
+
+        db.query('INSERT INTO usuarios(rut, nombre, apellido, telefono, direccion, nombreUsuario, email, contrasena, privilegio) VALUES(?,?,?,?,?,?,?,?,?)', 
+        [rut, nombre, apellido, telefono, direccion, nombreUsuario, email, hash, privilegio]),
+        (err, result) =>{
+            if(err){
+                console.log(err);
+            }else{
+                res.send(result);
+            }
+        };
+    })
+
+    
 });
 
 //Listar Usuarios
@@ -756,6 +820,20 @@ app.put("/updateContrato/:id_contrato", (req, res) => {
 
 //---------------------Fin Contrato--------------------------
 
+//---------------------Comienzo del Count--------------------------
+
+app.post("/countUsuarios", (req, res) => {
+    db.query('SELECT count(id_usuario) FROM usuarios',
+    (err, result) =>{
+        if(err){
+            console.log(err);
+        }else{
+            res.send(result);
+        }
+    }
+)});
+
+//---------------------Fin del Count--------------------------
 
 //Verificar conexion
 app.listen(3001,()=>{

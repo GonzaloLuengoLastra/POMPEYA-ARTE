@@ -1,7 +1,17 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
-export default class NavBar extends Component {
-  render() {
+import Axios from "axios";
+
+export default function NavBar() {
+
+    const [loginStatus, setLoginStatus] = useState('');
+
+    useEffect(() => {
+      Axios.get("http://localhost:3001/login").then((response)=>{
+        setLoginStatus(response.data.user[0].nombreUsuario)
+      })
+    }, [])
+
     return (
       <div>
       <aside className="main-sidebar sidebar-dark-primary elevation-4">
@@ -18,7 +28,7 @@ export default class NavBar extends Component {
       <img src="dist/img/user2-160x160.jpg" className="img-circle elevation-2" alt="User Image" />
     </div>
     <div className="info">
-      <a href="#" className="d-block">Administrador</a>
+      <a href="#" className="d-block">{loginStatus}</a>
     </div>
   </div>
   {/* SidebarSearch Form */}
@@ -285,4 +295,3 @@ export default class NavBar extends Component {
 </div>
     );
   }
-}
