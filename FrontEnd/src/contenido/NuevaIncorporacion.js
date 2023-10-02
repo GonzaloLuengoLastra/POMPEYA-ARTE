@@ -4,12 +4,14 @@ import Header from '../Header';
 import NavBar from '../NavBar';
 import Axios from "axios";
 import Swal from 'sweetalert2';
+import { useForm } from "react-hook-form";
 
 export default function NuevaIncorporacion () {
   const navigate = useNavigate();
   const[vincorporacion,setVincorporacion]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
   const[artista,setArtista]= React.useState('')
+  const {register, formState:{errors}, handleSubmit} = useForm();
 
   const[usuario,setUsuario]= React.useState([])
     React.useEffect(()=>{
@@ -77,7 +79,7 @@ export default function NuevaIncorporacion () {
   </div>     
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+    <form onSubmit={handleSubmit(guardarIncor)} action className="form-neon" autoComplete="off">
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información de la Incorporación</legend>
         <div className="container-fluid">
@@ -85,13 +87,35 @@ export default function NuevaIncorporacion () {
             <div className="col-12 col-md-12">
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Descripción</label>
-                <input type="text" onChange={(e)=>setDescripcion(e.target.value)} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} />
+                <input type="text" onChange={(e)=>setDescripcion(e.target.value)} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
+                {...register("direccion",{
+                  required:true,
+                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
+                })}
+                />
+                {
+                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Descripción</span>)
+                }
+                {
+                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
             <div className="col-12 col-md-5">
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Valor Incorporación $</label>
-                <input type="number" onChange={(e)=>setVincorporacion(e.target.value)} className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} />
+                <input type="number" onChange={(e)=>setVincorporacion(e.target.value)} className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
+                {...register("valor",{
+                  required:true,
+                  pattern: /^[0-9]/
+                })}
+                />
+                {
+                  errors.valor?.type==="required" && (<span className='errors'>Ingrese una Valor</span>)
+                }
+                {
+                  errors.valor?.type==="pattern" && (<span className='errors'>Formato solo Números</span>)
+                }
               </div>
             </div>
             
@@ -120,7 +144,7 @@ export default function NuevaIncorporacion () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="button" onClick={guardarIncor} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

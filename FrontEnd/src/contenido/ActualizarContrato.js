@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from "../Header";
 import NavBar from "../NavBar";
 import Swal from 'sweetalert2';
+import { useForm } from "react-hook-form";
 
 export default function ActualizarContrato () {
   
@@ -17,6 +18,7 @@ export default function ActualizarContrato () {
   const[plazo,setPlazo]= useState()
   const[valor,setValor]= useState('')
   const[artista,setArtista]= useState('')
+  const {register, formState:{errors}, handleSubmit} = useForm();
 
   useEffect(() => {
     axios.get('http://localhost:3001/editContrato/'+id_contrato)
@@ -122,7 +124,7 @@ export default function ActualizarContrato () {
 
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+    <form onSubmit={handleSubmit(updateContrato)} action className="form-neon" autoComplete="off">
       <fieldset>
       <legend><i className="far fa-address-card" /> &nbsp; Información del Contrato</legend>
         <div className="container-fluid">
@@ -132,7 +134,18 @@ export default function ActualizarContrato () {
                 <label htmlFor="usuario_dni" className="bmd-label-floating">Descripción</label>
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20}
                 defaultValue={descripcion}
-                onChange={(e)=>setDescripcion(e.target.value)}  />
+                onChange={(e)=>setDescripcion(e.target.value)}  
+                {...register("direccion",{
+                  required:true,
+                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
+                })}
+                />
+                {
+                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Descripción</span>)
+                }
+                {
+                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
           </div>
@@ -191,20 +204,26 @@ export default function ActualizarContrato () {
               <label htmlFor="usuario_clave_2" className="bmd-label-floating">Precio del Contrato $</label>
                 <input type="number" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20} 
                 defaultValue={valor}
-                onChange={(e)=>setValor(e.target.value)} />
+                onChange={(e)=>setValor(e.target.value)} 
+                {...register("valor",{
+                  required:true,
+                  pattern: /^[0-9]{5}/
+                })}
+                />
+                {
+                  errors.valor?.type==="required" && (<span className='errors'>Ingrese un Precio</span>)
+                }
+                {
+                  errors.valor?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
           </div>
       
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="button" className="btn btn-raised btn-success btn-sm" onClick={updateContrato}><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
-    <div className="alert alert-danger text-center" role="alert">
-      <p><i className="fas fa-exclamation-triangle fa-5x" /></p>
-      <h4 className="alert-heading">¡Ocurrió un error inesperado!</h4>
-      <p className="mb-0">Lo sentimos, no podemos mostrar la información solicitada debido a un error.</p>
-    </div>
   </div>
   </div>
 	  </div>

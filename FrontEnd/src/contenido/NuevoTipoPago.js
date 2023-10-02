@@ -4,12 +4,14 @@ import Header from '../Header';
 import NavBar from '../NavBar';
 import Axios from 'axios';
 import Swal from 'sweetalert2';
+import { useForm } from "react-hook-form";
 
 export default function NuevoTipoPago () {
 
   const navigate = useNavigate();
   const[ntipopago,setNtipopago]= useState('')
   const[descripcion,setDescripcion]= useState('')
+  const {register, formState:{errors}, handleSubmit} = useForm();
 
   const guardarTipoPago = (val) =>{
     Swal.fire({
@@ -65,7 +67,7 @@ export default function NuevoTipoPago () {
   </div>     
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+    <form onSubmit={handleSubmit(guardarTipoPago)} action className="form-neon" autoComplete="off">
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información del Tipo Pago</legend>
         <div className="container-fluid">
@@ -73,13 +75,35 @@ export default function NuevoTipoPago () {
             <div className="col-12 col-md-5">
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombre Tipo de Pago</label>
-                <input type="text" onChange={(e)=>setNtipopago(e.target.value)} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} />
+                <input type="text" onChange={(e)=>setNtipopago(e.target.value)} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
+                {...register("nombre",{
+                  required:true,
+                  pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}/
+                })}
+              />
+              {
+                errors.nombre?.type==="required" && (<span className='errors'>Ingrese un Nombre</span>)
+              }
+              {
+                errors.nombre?.type==="pattern" && (<span className='errors'>Formato de solo letras</span>)
+              }
               </div>
             </div>
             <div className="col-12 col-md-12">
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Descripción</label>
-                <input type="text" onChange={(e)=>setDescripcion(e.target.value)} className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} />
+                <input type="text" onChange={(e)=>setDescripcion(e.target.value)} className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
+                {...register("direccion",{
+                  required:true,
+                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
+                })}
+                />
+                {
+                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Descripción</span>)
+                }
+                {
+                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
             
@@ -89,7 +113,7 @@ export default function NuevoTipoPago () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="submit" onClick={guardarTipoPago} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
 import Swal from 'sweetalert2';
-import ImageUpload from '../ImageUpload';
+import { useForm } from "react-hook-form";
 
 export default function NuevoProducto() {
   const[nombres,setNombre]=React.useState('')
@@ -15,6 +15,8 @@ export default function NuevoProducto() {
   const[precio,setPrecio]=React.useState('')
   const[pintura,setPintura]=React.useState('')
   const navigate = useNavigate();
+
+  const {register, formState:{errors}, handleSubmit} = useForm();
 
   const[usuario,setUsuario]=React.useState([])
   React.useEffect(()=>{
@@ -117,7 +119,7 @@ export default function NuevoProducto() {
   </div>     
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off" enctype="multipart/form-data">
+    <form onSubmit={handleSubmit(guardarProducto)} action className="form-neon" autoComplete="off" enctype="multipart/form-data">
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información del Producto</legend>
         <div className="container-fluid">
@@ -126,7 +128,18 @@ export default function NuevoProducto() {
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombres</label>
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35}
-                onChange={(e)=>setNombre(e.target.value)} />
+                onChange={(e)=>setNombre(e.target.value)} 
+                {...register("nombre",{
+                  required:true,
+                  pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}/
+                })}
+              />
+              {
+                errors.nombre?.type==="required" && (<span className='errors'>Ingrese un Nombre</span>)
+              }
+              {
+                errors.nombre?.type==="pattern" && (<span className='errors'>Formato de solo letras</span>)
+              }
               </div>
             </div>
             <div className="col-12 col-md-2">
@@ -225,7 +238,7 @@ export default function NuevoProducto() {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="button" onClick={guardarProducto} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
 import Swal from 'sweetalert2';
+import { useForm } from "react-hook-form";
 
 
 export default function ActualizarUsuario () {
@@ -20,6 +21,8 @@ export default function ActualizarUsuario () {
     const [Email, setEmail] = useState("");
     const [Contrasena, setContrasena] = useState("");
     const [Privilegio, setPrivilegio] = useState("");
+
+    const {register, formState:{errors}, handleSubmit} = useForm();
 
     useEffect(() => {
       axios.get('http://localhost:3001/edit/'+id_usuario)
@@ -101,8 +104,7 @@ export default function ActualizarUsuario () {
 
   {/* Content */}
    <div className="container-fluid" >
-    <td>{Rut}</td>
-    <form action className="form-neon" autoComplete="off" >
+    <form onSubmit={handleSubmit(updateUsuario)} action className="form-neon" autoComplete="off" >
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información personal</legend>
         <div className="container-fluid">
@@ -112,7 +114,18 @@ export default function ActualizarUsuario () {
                 <label htmlFor="usuario_dni" className="bmd-label-floating">RUT</label>
                 <input defaultValue={Rut}
                 onChange={e => setRut(e.target.value)}
-                type="text" name="usuario_dni_up" id="usuario_dni" className="form-control" maxLength={20} />
+                type="text" name="usuario_dni_up" id="usuario_dni" className="form-control" maxLength={12} 
+                {...register("rut",{
+                  required:true,
+                  pattern: /^\d{1,3}(?:\.\d{1,3}){2}-[\dkK]$/
+                })}
+                /> 
+                {
+                  errors.rut?.type==="required" && (<span className='errors'>Ingrese un Rut</span>)
+                }
+                {
+                  errors.rut?.type==="pattern" && (<span className='errors'>Ejemplo forma correcta es: 19.575.214-1</span>)
+                }
               </div>
             </div>
             <div className="col-12 col-md-4">
@@ -120,7 +133,17 @@ export default function ActualizarUsuario () {
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombres</label>
                 <input defaultValue={nombre} type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_up" id="usuario_nombre" maxLength={35}
                 onChange={e => setNombre(e.target.value)}
-                />
+                {...register("nombre",{
+                  required:true,
+                  pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}/
+                })}
+              />
+              {
+                errors.nombre?.type==="required" && (<span className='errors'>Ingrese un Nombre</span>)
+              }
+              {
+                errors.nombre?.type==="pattern" && (<span className='errors'>Formato de solo letras</span>)
+              }
               </div>
             </div>
             <div className="col-12 col-md-4">
@@ -128,7 +151,17 @@ export default function ActualizarUsuario () {
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Apellidos</label>
                 <input defaultValue={Apellido} type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_apellido_up" id="usuario_apellido" maxLength={35}
                 onChange={e => setApellido(e.target.value)}
-                />
+                {...register("apellido",{
+                  required:true,
+                  pattern: /[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}/
+                })}
+              />
+              {
+                errors.apellido?.type==="required" && (<span className='errors'>Ingrese un Apellido</span>)
+              }
+              {
+                errors.apellido?.type==="pattern" && (<span className='errors'>Formato de solo letras</span>)
+              }
               </div>
             </div>
             <div className="col-12 col-md-6">
@@ -136,7 +169,17 @@ export default function ActualizarUsuario () {
                 <label htmlFor="usuario_telefono" className="bmd-label-floating">Teléfono</label>
                 <input defaultValue={Telefono} type="text" className="form-control" name="usuario_telefono_up" id="usuario_telefono" maxLength={20}
                 onChange={e => setTelefono(e.target.value)}
-                />
+                {...register("telefono",{
+                  required:true,
+                  pattern: /^[0-9()+]{12,12}/
+                })}
+              />
+              {
+                errors.telefono?.type==="required" && (<span className='errors'>Ingrese un Teléfono</span>)
+              }
+              {
+                errors.telefono?.type==="pattern" && (<span className='errors'>Formato: +56912345678</span>)
+              }
               </div>
             </div>
             <div className="col-12 col-md-6">
@@ -144,7 +187,17 @@ export default function ActualizarUsuario () {
                 <label htmlFor="usuario_direccion" className="bmd-label-floating">Dirección</label>
                 <input defaultValue={Direccion} type="text" className="form-control" name="usuario_direccion_up" id="usuario_direccion" maxLength={190}
                 onChange={e => setDireccion(e.target.value)}
+                {...register("direccion",{
+                  required:true,
+                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
+                })}
                 />
+                {
+                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Dirección</span>)
+                }
+                {
+                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
           </div>
@@ -160,7 +213,17 @@ export default function ActualizarUsuario () {
                 <label htmlFor="usuario_usuario" className="bmd-label-floating">Nombre de usuario</label>
                 <input defaultValue={NombreUsuario} type="text" pattern="[a-zA-Z0-9]{1,35}" className="form-control" name="usuario_usuario_up" id="usuario_usuario" maxLength={35}
                 onChange={e => setNombreUsuario(e.target.value)}
-                />
+                {...register("usuario",{
+                  required:true,
+                  pattern: /[a-zA-Z0-9]{1,35}/
+                })}
+              />
+              {
+                errors.usuario?.type==="required" && (<span className='errors'>Ingrese un Nombre de Usuario</span>)
+              }
+              {
+                errors.usuario?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+              }
               </div>
             </div>
             <div className="col-12 col-md-6">
@@ -168,16 +231,17 @@ export default function ActualizarUsuario () {
                 <label htmlFor="usuario_email" className="bmd-label-floating">Email</label>
                 <input defaultValue={Email} type="email" className="form-control" name="usuario_email_up" id="usuario_email" maxLength={70} 
                 onChange={e => setEmail(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="col-12">
-              <div className="form-group">
-                <span>Estado de la cuenta  &nbsp; <span className="badge badge-info">Activa</span></span>
-                <select className="form-control" name="usuario_estado_up">
-                  <option value="Activa" selected>Activa</option>
-                  <option value="Deshabilitada">Deshabilitada</option>
-                </select>
+                {...register("email",{
+                  required:true,
+                  pattern: /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/
+                })}
+              />
+              {
+                errors.email?.type==="required" && (<span className='errors'>Ingrese un Email</span>)
+              }
+              {
+                errors.email?.type==="pattern" && (<span className='errors'>Ejemplo: pompeya1@gmail.com</span>)
+              }
               </div>
             </div>
           </div>
@@ -187,7 +251,6 @@ export default function ActualizarUsuario () {
       <fieldset>
         <legend style={{marginTop: 40}}><i className="fas fa-lock" /> &nbsp; Nueva contraseña</legend>
         <p>Para actualizar la contraseña de esta cuenta ingrese una nueva y vuelva a escribirla. En caso que no desee actualizarla debe dejar vacíos los dos campos de las contraseñas.</p>
-        {Contrasena}
         <div className="container-fluid">
           <div className="row">
             <div className="col-12 col-md-6">
@@ -195,13 +258,17 @@ export default function ActualizarUsuario () {
                 <label htmlFor="usuario_clave_nueva_1" className="bmd-label-floating">Contraseña</label>
                 <input type="password" defaultValue={Contrasena} className="form-control" name="usuario_clave_nueva_1" id="usuario_clave_nueva_1" pattern="[a-zA-Z0-9$@.-]{7,100}" maxLength={100}
                 onChange={e => setContrasena(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="col-12 col-md-6">
-              <div className="form-group">
-                <label htmlFor="usuario_clave_nueva_2" className="bmd-label-floating">Repetir contraseña</label>
-                <input type="password" className="form-control" name="usuario_clave_nueva_2" id="usuario_clave_nueva_2" pattern="[a-zA-Z0-9$@.-]{7,100}" maxLength={100} />
+                {...register("contrasena",{
+                  required:true,
+                  pattern: /[a-zA-Z0-9$@.-]{7,100}/
+                })}
+              />
+              {
+                errors.contrasena?.type==="required" && (<span className='errors'>Ingrese una Contraseña</span>)
+              }
+              {
+                errors.contrasena?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+              }
               </div>
             </div>
           </div>
@@ -229,27 +296,8 @@ export default function ActualizarUsuario () {
         </div>
       </fieldset>
       <br /><br /><br />
-      <fieldset>
-        <p className="text-center">Para poder guardar los cambios en esta cuenta debe de ingresar su nombre de usuario y contraseña</p>
-        <div className="container-fluid">
-          <div className="row">
-            <div className="col-12 col-md-6">
-              <div className="form-group">
-                <label htmlFor="usuario_admin" className="bmd-label-floating">Nombre de usuario</label>
-                <input type="text" pattern="[a-zA-Z0-9]{1,35}" className="form-control" name="usuario_admin" id="usuario_admin" maxLength={35} required />
-              </div>
-            </div>
-            <div className="col-12 col-md-6">
-              <div className="form-group">
-                <label htmlFor="clave_admin" className="bmd-label-floating">Contraseña</label>
-                <input type="password" className="form-control" name="clave_admin" id="clave_admin" pattern="[a-zA-Z0-9$@.-]{7,100}" maxLength={100} required />
-              </div>
-            </div>
-          </div>
-        </div>
-      </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="button" onClick={updateUsuario} className="btn btn-raised btn-success btn-sm" ><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button className="btn btn-raised btn-success btn-sm" ><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
   </div>

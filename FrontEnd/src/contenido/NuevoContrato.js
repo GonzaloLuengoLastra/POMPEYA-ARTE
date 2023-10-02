@@ -4,6 +4,7 @@ import Header from '../Header';
 import NavBar from '../NavBar';
 import Axios from "axios";
 import Swal from 'sweetalert2';
+import { useForm } from "react-hook-form";
 
 export default function NuevoContrato () {
 
@@ -14,6 +15,8 @@ export default function NuevoContrato () {
     const[plazo,setPlazo]= useState()
     const[valor,setValor]= useState('')
     const[artista,setArtista]= useState('')
+
+    const {register, formState:{errors}, handleSubmit} = useForm();
     
     const[usuario,setUsuario]= useState([])
     useEffect(()=>{
@@ -105,7 +108,7 @@ export default function NuevoContrato () {
   </div>     
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+    <form onSubmit={handleSubmit(guardarContrato)} action className="form-neon" autoComplete="off">
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información del Contrato</legend>
         <div className="container-fluid">
@@ -114,7 +117,18 @@ export default function NuevoContrato () {
               <div className="form-group">
                 <label htmlFor="usuario_dni" className="bmd-label-floating">Descripción</label>
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20}
-                onChange={(e)=>setDescripcion(e.target.value)}  />
+                onChange={(e)=>setDescripcion(e.target.value)}  
+                {...register("direccion",{
+                  required:true,
+                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
+                })}
+                />
+                {
+                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Descripción</span>)
+                }
+                {
+                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
           </div>
@@ -165,7 +179,7 @@ export default function NuevoContrato () {
             <div className="col-12 col-md-4">
               <div className="form-group">
               <label htmlFor="usuario_clave_2" className="bmd-label-floating">Plazo del Contrato</label>
-                <input type="text" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20} 
+                <input type="date" className="form-control" name="usuario_dni_reg" id="usuario_dni" maxLength={20} 
                 onChange={(e)=>setPlazo(e.target.value)} />
               </div>
             </div>
@@ -181,7 +195,7 @@ export default function NuevoContrato () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="button" onClick={guardarContrato} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

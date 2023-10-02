@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
 import Swal from 'sweetalert2';
+import { useForm } from "react-hook-form";
 
 export default function ActualizarIncorporacion () {
   
@@ -14,6 +15,8 @@ export default function ActualizarIncorporacion () {
   const[vincorporacion,setVincorporacion]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
   const[artista,setArtista]= React.useState('')
+
+  const {register, formState:{errors}, handleSubmit} = useForm();
 
   React.useEffect(() => {
     Axios.get('http://localhost:3001/editIncor/'+id_incor)
@@ -94,7 +97,7 @@ export default function ActualizarIncorporacion () {
 
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+    <form onSubmit={handleSubmit(updateIncor)} action className="form-neon" autoComplete="off">
     <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información de la Incorporación</legend>
         <div className="container-fluid">
@@ -102,13 +105,35 @@ export default function ActualizarIncorporacion () {
             <div className="col-12 col-md-5">
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Descripción</label>
-                <input type="text" defaultValue={descripcion} onChange={(e)=>setDescripcion(e.target.value)} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} />
+                <input type="text" defaultValue={descripcion} onChange={(e)=>setDescripcion(e.target.value)} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
+                {...register("direccion",{
+                  required:true,
+                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
+                })}
+                />
+                {
+                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Descripción</span>)
+                }
+                {
+                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
             <div className="col-12 col-md-12">
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Valor</label>
-                <input type="number" defaultValue={vincorporacion} onChange={(e)=>setVincorporacion(e.target.value)}  className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} />
+                <input type="number" defaultValue={vincorporacion} onChange={(e)=>setVincorporacion(e.target.value)}  className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
+                {...register("direccion",{
+                  required:true,
+                  pattern: /^[0-9]/
+                })}
+                />
+                {
+                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese un valor</span>)
+                }
+                {
+                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
             
@@ -135,14 +160,9 @@ export default function ActualizarIncorporacion () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="button" onClick={updateIncor} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
-    <div className="alert alert-danger text-center" role="alert">
-      <p><i className="fas fa-exclamation-triangle fa-5x" /></p>
-      <h4 className="alert-heading">¡Ocurrió un error inesperado!</h4>
-      <p className="mb-0">Lo sentimos, no podemos mostrar la información solicitada debido a un error.</p>
-    </div>
   </div>
   </div>
 	  </div>

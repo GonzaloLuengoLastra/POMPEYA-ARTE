@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
 import Swal from 'sweetalert2';
+import { useForm } from "react-hook-form";
 
 export default function ActualizarPrecio () {
 
@@ -12,6 +13,7 @@ export default function ActualizarPrecio () {
   const { id_precio } = useParams();
 
   const[valor,setValor]=React.useState('')
+  const {register, formState:{errors}, handleSubmit} = useForm();
 
   useEffect(() => {
     axios.get('http://localhost:3001/editPrecio/'+id_precio)
@@ -77,7 +79,7 @@ export default function ActualizarPrecio () {
 
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+    <form onSubmit={handleSubmit(updatePrecio)} action className="form-neon" autoComplete="off">
     <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información del Precio</legend>
         <div className="container-fluid">
@@ -88,7 +90,17 @@ export default function ActualizarPrecio () {
                 <input type="number" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
                 defaultValue={valor}
                 onChange={(e)=>setValor(e.target.value)}
-                />
+                {...register("rut",{
+                  required:true,
+                  pattern: /^[0-9]/
+                })}
+                /> 
+                {
+                  errors.rut?.type==="required" && (<span className='errors'>Ingrese un Precio</span>)
+                }
+                {
+                  errors.rut?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
             
@@ -96,14 +108,9 @@ export default function ActualizarPrecio () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="button" onClick={updatePrecio} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
-    <div className="alert alert-danger text-center" role="alert">
-      <p><i className="fas fa-exclamation-triangle fa-5x" /></p>
-      <h4 className="alert-heading">¡Ocurrió un error inesperado!</h4>
-      <p className="mb-0">Lo sentimos, no podemos mostrar la información solicitada debido a un error.</p>
-    </div>
   </div>
   </div>
 	  </div>

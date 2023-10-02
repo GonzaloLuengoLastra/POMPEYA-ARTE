@@ -5,10 +5,12 @@ import NavBar from '../NavBar';
 import { useNavigate } from 'react-router-dom';
 import Axios from 'axios';
 import Swal from 'sweetalert2';
+import { useForm } from "react-hook-form";
 
 export default function NuevoPrecio () {
 
   const[valor,setValor]=React.useState('')
+  const {register, formState:{errors}, handleSubmit} = useForm();
   const navigate = useNavigate();
 
   const guardarPrecio = (val) =>{
@@ -65,7 +67,7 @@ export default function NuevoPrecio () {
   </div>     
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+    <form onSubmit={handleSubmit(guardarPrecio)} action className="form-neon" autoComplete="off">
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información del Precio</legend>
         <div className="container-fluid">
@@ -74,7 +76,18 @@ export default function NuevoPrecio () {
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Precio $</label>
                 <input type="number" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35}
-                onChange={(e)=>setValor(e.target.value)} />
+                onChange={(e)=>setValor(e.target.value)} 
+                {...register("valor",{
+                  required:true,
+                  pattern: /^[0-9]/
+                })}
+                />
+                {
+                  errors.valor?.type==="required" && (<span className='errors'>Ingrese un Precio</span>)
+                }
+                {
+                  errors.valor?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
           </div>
@@ -83,7 +96,7 @@ export default function NuevoPrecio () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type='button' onClick={guardarPrecio} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

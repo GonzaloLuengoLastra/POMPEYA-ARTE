@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import Axios from "axios";
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from "react-hook-form";
 
 export default function NuevoUsuario() {
   
@@ -18,7 +19,9 @@ export default function NuevoUsuario() {
     const [NombreUsuario, setNombreUsuario] = useState("");
     const [Email, setEmail] = useState("");
     const [Contrasena, setContrasena] = useState("");
-    const [Privilegio, setPrivilegio] = useState(1);    
+    const [Privilegio, setPrivilegio] = useState(1); 
+
+    const {register, formState:{errors}, handleSubmit} = useForm();
 
     const guardarUsuarios = (val) =>{
       Swal.fire({
@@ -83,7 +86,7 @@ export default function NuevoUsuario() {
   </div>     
   {/* Content */}
   <div className="container-fluid">
-    <form className="form-neon" autoComplete="off">
+    <form onSubmit={handleSubmit(guardarUsuarios)} className="form-neon" autoComplete="off">
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información personal</legend>
         <div className="container-fluid">
@@ -94,8 +97,18 @@ export default function NuevoUsuario() {
                 <input onChange={(event)=>{
                     setRut(event.target.value);
                  }} 
-                type="text" className="form-control" name="usuario_rut_reg" id="usuario_dni" maxLength={20}
+                type="text" className="form-control" name="usuario_rut_reg" id="usuario_dni" maxLength={12}
+                {...register("rut",{
+                  required:true,
+                  pattern: /^\d{1,3}(?:\.\d{1,3}){2}-[\dkK]$/
+                })}
                 /> 
+                {
+                  errors.rut?.type==="required" && (<span className='errors'>Ingrese un Rut</span>)
+                }
+                {
+                  errors.rut?.type==="pattern" && (<span className='errors'>Ejemplo forma correcta es: 19.575.214-1</span>)
+                }
               </div>
             </div>
             <div className="col-12 col-md-4">
@@ -105,7 +118,17 @@ export default function NuevoUsuario() {
                     setNombre(event.target.value);
                  }}
                   type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35}
+                  {...register("nombre",{
+                    required:true,
+                    pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}/
+                  })}
                 />
+                {
+                  errors.nombre?.type==="required" && (<span className='errors'>Ingrese un Nombre</span>)
+                }
+                {
+                  errors.nombre?.type==="pattern" && (<span className='errors'>Formato de solo letras</span>)
+                }
               </div>
             </div>
             <div className="col-12 col-md-4">
@@ -115,8 +138,17 @@ export default function NuevoUsuario() {
                     setApellido(event.target.value);
                  }}
                   type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
-
+                  {...register("apellido",{
+                    required:true,
+                    pattern: /[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}/
+                  })}
                 />
+                {
+                  errors.apellido?.type==="required" && (<span className='errors'>Ingrese un Apellido</span>)
+                }
+                {
+                  errors.apellido?.type==="pattern" && (<span className='errors'>Formato de solo letras</span>)
+                }
               </div>
             </div>
             <div className="col-12 col-md-6">
@@ -125,9 +157,18 @@ export default function NuevoUsuario() {
                 <input onChange={(event)=>{
                     setTelefono(event.target.value);
                  }}
-                  type="text" pattern="[0-9()+]{8,20}" className="form-control" name="usuario_telefono_reg" id="usuario_telefono" maxLength={20} 
-
+                  type="text" pattern="[0-9()+]{8,20}" className="form-control" name="usuario_telefono_reg" id="usuario_telefono" maxLength={12} 
+                  {...register("telefono",{
+                    required:true,
+                    pattern: /^[0-9()+]{12,12}/
+                  })}
                 />
+                {
+                  errors.telefono?.type==="required" && (<span className='errors'>Ingrese un Teléfono</span>)
+                }
+                {
+                  errors.telefono?.type==="pattern" && (<span className='errors'>Formato: +56912345678</span>)
+                }
               </div>
             </div>
             <div className="col-12 col-md-6">
@@ -137,8 +178,17 @@ export default function NuevoUsuario() {
                     setDireccion(event.target.value);
                  }}
                  type="text" pattern="[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}" className="form-control" name="usuario_direccion_reg" id="usuario_direccion" maxLength={190}
-
+                 {...register("direccion",{
+                  required:true,
+                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
+                })}
                 />
+                {
+                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Dirección</span>)
+                }
+                {
+                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
           </div>
@@ -156,7 +206,17 @@ export default function NuevoUsuario() {
                     setNombreUsuario(event.target.value);
                  }}
                   type="text" pattern="[a-zA-Z0-9]{1,35}" className="form-control" name="usuario_usuario_reg" id="usuario_usuario" maxLength={35}
-/>
+                  {...register("usuario",{
+                    required:true,
+                    pattern: /[a-zA-Z0-9]{1,35}/
+                  })}
+                />
+                {
+                  errors.usuario?.type==="required" && (<span className='errors'>Ingrese un Nombre de Usuario</span>)
+                }
+                {
+                  errors.usuario?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
             <div className="col-12 col-md-6">
@@ -166,8 +226,17 @@ export default function NuevoUsuario() {
                     setEmail(event.target.value);
                  }}
                   type="email" className="form-control" name="usuario_email_reg" id="usuario_email" maxLength={70}
-   
+                  {...register("email",{
+                    required:true,
+                    pattern: /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/
+                  })}
                 />
+                {
+                  errors.email?.type==="required" && (<span className='errors'>Ingrese un Email</span>)
+                }
+                {
+                  errors.email?.type==="pattern" && (<span className='errors'>Ejemplo: pompeya1@gmail.com</span>)
+                }
               </div>
             </div>
             <div className="col-12 col-md-6">
@@ -176,15 +245,18 @@ export default function NuevoUsuario() {
                 <input onChange={(event)=>{
                     setContrasena(event.target.value);
                  }}
-                  type="password" className="form-control" name="usuario_clave_1_reg" id="usuario_clave_1" pattern="[a-zA-Z0-9$@.-]{7,100}" maxLength={100} required 
-            
+                  type="password" className="form-control" name="usuario_clave_1_reg" id="usuario_clave_1" pattern="[a-zA-Z0-9$@.-]{7,100}" maxLength={100} 
+                  {...register("contrasena",{
+                    required:true,
+                    pattern: /[a-zA-Z0-9$@.-]{7,100}/
+                  })}
                 />
-              </div>
-            </div>
-            <div className="col-12 col-md-6">
-              <div className="form-group">
-                <label htmlFor="usuario_clave_2" className="bmd-label-floating">Repetir contraseña</label>
-                <input type="password" className="form-control" name="usuario_clave_2_reg" id="usuario_clave_2" pattern="[a-zA-Z0-9$@.-]{7,100}" maxLength={100} required />
+                {
+                  errors.contrasena?.type==="required" && (<span className='errors'>Ingrese una Contraseña</span>)
+                }
+                {
+                  errors.contrasena?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
           </div>
@@ -217,7 +289,7 @@ export default function NuevoUsuario() {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button onClick={guardarUsuarios} type="button" className="btn btn-raised btn-info btn-sm" ><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button className="btn btn-raised btn-info btn-sm" ><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

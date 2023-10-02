@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
 import Swal from 'sweetalert2';
+import { useForm } from "react-hook-form";
 
 export default function ActualizarCategoria () {
   
@@ -13,6 +14,7 @@ export default function ActualizarCategoria () {
 
   const[ncategoria,setNcategoria]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
+  const {register, formState:{errors}, handleSubmit} = useForm();
 
 
   useEffect(() => {
@@ -82,7 +84,7 @@ export default function ActualizarCategoria () {
 
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+    <form onSubmit={handleSubmit(updateCategoria)} action className="form-neon" autoComplete="off">
     <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información de la Categoría</legend>
         <div className="container-fluid">
@@ -93,7 +95,17 @@ export default function ActualizarCategoria () {
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
                 defaultValue={ncategoria}
                 onChange={(e)=>setNcategoria(e.target.value)}
-                />
+                {...register("nombre",{
+                  required:true,
+                  pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}/
+                })}
+              />
+              {
+                errors.nombre?.type==="required" && (<span className='errors'>Ingrese un Nombre</span>)
+              }
+              {
+                errors.nombre?.type==="pattern" && (<span className='errors'>Formato de solo letras</span>)
+              }
               </div>
             </div>
             <div className="col-12 col-md-12">
@@ -102,7 +114,17 @@ export default function ActualizarCategoria () {
                 <input type="text"  className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
                 defaultValue={descripcion}
                 onChange={(e)=>setDescripcion(e.target.value)}
+                {...register("direccion",{
+                  required:true,
+                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
+                })}
                 />
+                {
+                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Descripción</span>)
+                }
+                {
+                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
             
@@ -110,14 +132,9 @@ export default function ActualizarCategoria () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button type="button" onClick={updateCategoria} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
-    <div className="alert alert-danger text-center" role="alert">
-      <p><i className="fas fa-exclamation-triangle fa-5x" /></p>
-      <h4 className="alert-heading">¡Ocurrió un error inesperado!</h4>
-      <p className="mb-0">Lo sentimos, no podemos mostrar la información solicitada debido a un error.</p>
-    </div>
   </div>
   </div>
 	  </div>

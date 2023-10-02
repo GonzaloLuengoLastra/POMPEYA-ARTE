@@ -234,6 +234,7 @@ app.post("/create", (req, res) => {
     const constrasena = req.body.contrasena;
     const privilegio = req.body.privilegio;
 
+
     bcryp.hash(constrasena, saltRounds, (err, hash) => {
         if(err){
             console.log(err);

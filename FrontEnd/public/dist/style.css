@@ -3,6 +3,12 @@
     padding: 0;
 }
 
+.errors{
+  display: block;
+  color: tomato;
+  font-size: x-small;
+}
+
 a{
     text-decoration: none !important;
 }

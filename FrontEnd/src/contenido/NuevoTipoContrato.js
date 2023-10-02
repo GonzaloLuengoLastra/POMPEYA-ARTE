@@ -4,12 +4,14 @@ import NavBar from '../NavBar';
 import { useState }  from 'react';
 import Axios from 'axios';
 import Swal from 'sweetalert2';
+import { useForm } from "react-hook-form";
 
 export default function NuevoTipoContrato () {
 
   const navigate = useNavigate();
   const[ntipocontrato,setNtipocontrato]= useState('')
   const[descripcion,setDescripcion]= useState('')
+  const {register, formState:{errors}, handleSubmit} = useForm();
 
   const guardarTipoContrato = (val) =>{
     Swal.fire({
@@ -66,7 +68,7 @@ export default function NuevoTipoContrato () {
   </div>     
   {/* Content */}
   <div className="container-fluid">
-    <form action className="form-neon" autoComplete="off">
+    <form onSubmit={handleSubmit(guardarTipoContrato)} action className="form-neon" autoComplete="off">
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información del Tipo Contrato</legend>
         <div className="container-fluid">
@@ -75,14 +77,36 @@ export default function NuevoTipoContrato () {
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombre Tipo de Contrato</label>
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35}
-                onChange={(e)=>setNtipocontrato(e.target.value)} />
+                onChange={(e)=>setNtipocontrato(e.target.value)} 
+                {...register("apellido",{
+                  required:true,
+                  pattern: /[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}/
+                })}
+              />
+              {
+                errors.apellido?.type==="required" && (<span className='errors'>Ingrese un Nombre</span>)
+              }
+              {
+                errors.apellido?.type==="pattern" && (<span className='errors'>Formato de solo letras</span>)
+              }
               </div>
             </div>
             <div className="col-12 col-md-12">
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Descripción</label>
                 <input type="text" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
-                onChange={(e)=>setDescripcion(e.target.value)}/>
+                onChange={(e)=>setDescripcion(e.target.value)}
+                {...register("direccion",{
+                  required:true,
+                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
+                })}
+                />
+                {
+                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Descripción</span>)
+                }
+                {
+                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                }
               </div>
             </div>
             
@@ -92,7 +116,7 @@ export default function NuevoTipoContrato () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button type="submit" onClick={guardarTipoContrato} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>
