@@ -1,20 +1,27 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Header from '../Header';
 import NavBar from '../NavBar';
 import Swal from "sweetalert2";
-import ImageUpload from "../ImageUpload";
 
-export default function ListarCategorias () {
+const ListarCategorias = () => {
 
-  const[productos,setProductos]= useState([])
-  
-  const getProductos = ()=>{
-    axios.get("http://localhost:3001/getProductos").then((response)=>{
-      setProductos(response.data); 
+  const [producto,setProducto] = useState([]);
+
+  const getProducto = async() => {
+    const res = await axios.get("http://localhost:3001/getProductos",{
+      headers:{
+          "Content-Type":"application/json"
+      }
     });
+    setProducto(res.data)
+    console.log(res)
   }
+
+  useEffect(()=>{
+    getProducto()
+  }, [])
 
   const deleteProductos = (val) =>{
     Swal.fire({
@@ -35,8 +42,6 @@ export default function ListarCategorias () {
       }
     })
 }
-
-  getProductos();
 
   return (
         
@@ -85,29 +90,32 @@ export default function ListarCategorias () {
           </tr>
         </thead>
         <tbody>
-        {productos.map((val, key)=>{
-          return <tr className="text-center">
-          <td>{val.id_producto}</td>
-          <td>{val.nombre_producto}</td>
-          <td>{val.id_sala}</td>
-          <td>{val.id_usuario}</td>
-          <td>{val.fecha_producto}</td>
-          <td>{val.id_categoria}</td>
-          <td>{val.id_precio}</td>
+        {
+        producto.length > 0 ? producto.map((el, i) => {
+          return (
+            <> 
+          <tr className="text-center">
+          <td><img src={`http://localhost:3001/uploads/${el.imagen_producto}`} style={{width: '100px', height: '100px'}}/></td>
+          <td>{el.nombre_producto}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
             <td>
-              <Link to={`/ActualizarProducto/${val.id_producto}`} className="btn btn-success">
+              <Link to={`/ActualizarProducto/${el.id_producto}`} className="btn btn-success">
                 <i className="fas fa-sync-alt" />	
               </Link>
             </td>
             <td>
-              <form action>
-                <button type="button" className="btn btn-warning" onClick={() => deleteProductos(val)}>
+                <button type="button" className="btn btn-warning" onClick={() => deleteProductos(el)}>
                   <i className="far fa-trash-alt" />
                 </button>
-              </form>
             </td>
           </tr>
-         })
+          </>
+          )
+          }):""
         } 
         </tbody>
       </table>
@@ -130,6 +138,8 @@ export default function ListarCategorias () {
 </div>
 
       </div>
-    );
+    )
   }
+
+ export default ListarCategorias; 
 

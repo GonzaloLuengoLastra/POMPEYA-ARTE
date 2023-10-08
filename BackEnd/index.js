@@ -1,16 +1,25 @@
+const path = require("path");
+const multer = require("multer");
 const express = require("express");
 const app = express();
 const mysql = require("mysql");
 const cors = require("cors");
 const bcryp = require("bcrypt");
 const saltRounds = 10;
+require("./db/conn");
+
+const router = require("./Routes/routes")
+
 
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
+
+app.use("/uploads",express.static("./uploads"))
+app.use(router)
 app.use(cors({
-    origin: ["http://localhost:3000"],
+    /*origin: ["http://localhost:3000"],*/
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
@@ -28,6 +37,8 @@ app.use(session({
     },
 }));
 
+
+
 //Conexion BD MySQL
 const db = mysql.createConnection({
     host: "localhost",
@@ -35,6 +46,8 @@ const db = mysql.createConnection({
     password: "",
     database: "pompeya"
 });
+
+
 
 app.get("/login", (req, res) => {
     if(req.session.user) {
@@ -143,25 +156,6 @@ app.delete("/deleteIncor/:id_incor", (req, res) => {
 //---------------------Fin Incorporacion--------------------------
 
 //---------------------Comienzo Productos--------------------------
-app.post("/productos", (req, res) => {
-    const nombre_producto = req.body.nombre_producto;
-    const fecha_producto = req.body.fecha_producto;
-    const imagen_producto = req.body.imagen_producto;
-    const id_usuario = req.body.id_usuario;
-    const id_categoria = req.body.id_categoria;
-    const id_precio = req.body.id_precio;
-    const id_sala = req.body.id_sala;
-
-    db.query('INSERT INTO productos(nombre_producto, fecha_producto, imagen_producto, id_usuario, id_categoria, id_precio, id_sala) VALUES(?,?,?,?,?,?,?)', 
-    [nombre_producto, fecha_producto, imagen_producto, id_usuario, id_categoria, id_precio, id_sala]),
-    (err, result) =>{
-        if(err){
-            console.log(err);
-        }else{
-            res.send(result);
-        }
-    };
-});
 
 app.get("/getProductos", (req, res) => {
     db.query('SELECT * FROM productos',

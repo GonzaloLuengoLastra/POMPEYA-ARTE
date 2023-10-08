@@ -77,17 +77,7 @@ export default function NuevoPrecio () {
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Precio $</label>
                 <input type="number" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35}
                 onChange={(e)=>setValor(e.target.value)} 
-                {...register("valor",{
-                  required:true,
-                  pattern: /^[0-9]/
-                })}
                 />
-                {
-                  errors.valor?.type==="required" && (<span className='errors'>Ingrese un Precio</span>)
-                }
-                {
-                  errors.valor?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
-                }
               </div>
             </div>
           </div>
