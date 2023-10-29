@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Axios from "axios";
 import { Link, useParams } from "react-router-dom";
 import Header from '../Header';
@@ -9,10 +9,13 @@ export default function ListarTipoContratos () {
   
 
   const[tcontrato,setTcontrato]= useState([])
+  const  [tablatContrato, setTablatContrato] = useState([]);
+  const  [busqueda, setBusqueda] = useState("");
 
   const getTipoContrato = ()=>{
     Axios.get("http://localhost:3001/getTContrato").then((response)=>{
       setTcontrato(response.data); 
+      setTablatContrato(response.data);
     });
   }
 
@@ -36,7 +39,23 @@ export default function ListarTipoContratos () {
     })
 }
 
-getTipoContrato();
+const handleChange = e => {
+  setBusqueda(e.target.value);
+  filtrar(e.target.value);
+}
+
+const filtrar = (terminobusqueda) => {
+  var ResultadoBusqueda = tablatContrato.filter((elemento) => {
+    if(elemento.nombre_tipo_contrato.toString().toLowerCase().includes(terminobusqueda.toLowerCase())){
+      return elemento;
+    }
+  })
+  setTcontrato(ResultadoBusqueda);
+}
+
+useEffect(() => {
+  getTipoContrato();
+}, [])
 
     return (
         
@@ -51,7 +70,7 @@ getTipoContrato();
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA TIPO CONTRATOS
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Listar tipo contrato de los artistas.
     </p>
   </div>
   <div className="container-fluid">
@@ -62,12 +81,15 @@ getTipoContrato();
       <li>
         <Link className='active' to="/ListarTipoContratos"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA TIPO CONTRATOS</Link>
       </li>
-      <li>
-        <Link to="/BuscarTipoContrato"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR CONTRATO</Link>
-      </li>
     </ul>	
   </div>
   {/* Content */}
+  <div className="col-12 col-md-6">
+    <label htmlFor="usuario_dni" className="bmd-label-floating">Buscar</label>
+    <input onChange={handleChange} className=" form-control" value={busqueda} placeholder="Búsqueda por nombre"></input>
+  </div>
+  <br/>
+  <br/><br/>
   <div className="container-fluid">
     <div className="table-responsive">
       <table className="table table-ligth table-sm">

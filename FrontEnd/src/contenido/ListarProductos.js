@@ -8,6 +8,16 @@ import Swal from "sweetalert2";
 const ListarCategorias = () => {
 
   const [producto,setProducto] = useState([]);
+  const  [tablaProducto, setTablaProducto] = useState([]);
+  const  [busqueda, setBusqueda] = useState("");
+
+  const [loginStatus, setLoginStatus] = useState('');
+
+    useEffect(() => {
+      axios.get("http://localhost:3001/login").then((response)=>{
+        setLoginStatus(response.data.user[0].privilegio)
+      })
+    }, [])
 
   const getProducto = async() => {
     const res = await axios.get("http://localhost:3001/getProductos",{
@@ -16,6 +26,7 @@ const ListarCategorias = () => {
       }
     });
     setProducto(res.data)
+    setTablaProducto(res.data)
     console.log(res)
   }
 
@@ -26,7 +37,7 @@ const ListarCategorias = () => {
   const deleteProductos = (val) =>{
     Swal.fire({
       title: 'Eliminar Producto',
-      text: "¿Desea eliminar el producto "+val.nombre_producto+" del sistema",
+      text: "¿Desea eliminar a "+val.nombre_producto+" del sistema",
       icon: 'warning',
       showDenyButton: true,
       confirmButtonText: 'Eliminar',
@@ -36,11 +47,26 @@ const ListarCategorias = () => {
       if (result.isConfirmed) {
         Swal.fire('Producto eliminado!', '', 'success')
         axios.delete(`http://localhost:3001/deleteProductos/${val.id_producto}`).then(()=>{
+        getProducto(); 
       });
       } else if (result.isDenied) {
         Swal.fire('Operación cancelada', '', 'info')
       }
     })
+}
+
+const handleChange = e => {
+  setBusqueda(e.target.value);
+  filtrar(e.target.value);
+}
+
+const filtrar = (terminobusqueda) => {
+  var ResultadoBusqueda = tablaProducto.filter((elemento) => {
+    if(elemento.nombre_producto.toString().toLowerCase().includes(terminobusqueda.toLowerCase())){
+      return elemento;
+    }
+  })
+  setProducto(ResultadoBusqueda);
 }
 
   return (
@@ -56,7 +82,7 @@ const ListarCategorias = () => {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE PRODUCTOS
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Listar obras de arte del sistema.
     </p>
   </div>
   <div className="container-fluid">
@@ -67,24 +93,28 @@ const ListarCategorias = () => {
       <li>
         <Link className='active' to="/ListarProductos"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE CATEGORÍAS</Link>
       </li>
-      <li>
-        <Link to="/BuscarProducto"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR CATEGORÍA</Link>
-      </li>
     </ul>	
   </div>
   {/* Content */}
+  <div className="col-12 col-md-6">
+  <label htmlFor="usuario_dni" className="bmd-label-floating">Buscar</label>
+    <input onChange={handleChange} className=" form-control" value={busqueda} placeholder="Búsqueda por nombre"></input>
+  </div>
+  <br/>
+  <br/><br/>
   <div className="container-fluid">
     <div className="table-responsive">
       <table className="table table-ligth table-sm">
         <thead>
           <tr className="text-center roboto-medium">
-            <th className="text-dark">#</th>
+            <th className="text-dark">PINTURA</th>
             <th className="text-dark">NOMBRE PRODUCTO</th>
             <th className="text-dark">SALA</th>
             <th className="text-dark">ARTISTA</th>
             <th className="text-dark">AÑO</th>
             <th className="text-dark">CATEGORÍA</th>
             <th className="text-dark">PRECIO</th>
+            <th className="text-dark">ESTADO</th>
             <th className="text-dark">ACTUALIZAR</th>
             <th className="text-dark">ELIMINAR</th>
           </tr>
@@ -97,11 +127,12 @@ const ListarCategorias = () => {
           <tr className="text-center">
           <td><img src={`http://localhost:3001/uploads/${el.imagen_producto}`} style={{width: '100px', height: '100px'}}/></td>
           <td>{el.nombre_producto}</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td>{el.id_sala}</td>
+          <td>{el.id_usuario}</td>
+          <td>{el.fecha_producto}</td>
+          <td>{el.id_categoria}</td>
+          <td>{el.id_precio}</td>
+          <td>{el.estado_producto}</td>
             <td>
               <Link to={`/ActualizarProducto/${el.id_producto}`} className="btn btn-success">
                 <i className="fas fa-sync-alt" />	

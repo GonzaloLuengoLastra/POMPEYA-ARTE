@@ -54,7 +54,7 @@ export default class Menu extends Component {
               </a>
             </li>
             <li className="nav-item">
-              <a href="pages/layout/top-nav-sidebar.html" className="nav-link">
+              <a href="contenido/ListarUsuarios.js" className="nav-link">
                 <i className="far fa-circle nav-icon" />
                 <p>Listar Usuarios</p>
               </a>

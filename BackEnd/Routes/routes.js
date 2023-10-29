@@ -50,13 +50,15 @@ router.post("/registrarProducto",upload.single("photo"),(req, res) => {
             id_usuario:artista,
             id_categoria:categoria,
             id_precio:precio,
-            id_sala:sala
+            id_sala:sala,
+            estado_producto:"Disponible"
         },(err, result)=>{
             if(err){
                 console.log("error")
             }else{
                 console.log("Producto registrado")
                 res.status(201).json({status:201,data:req.body})
+
             }
         })
     } catch (error) {

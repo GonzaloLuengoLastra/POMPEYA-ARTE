@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Axios from "axios";
 import { Link } from "react-router-dom";
 import Header from '../Header';
@@ -8,10 +8,13 @@ import Swal from 'sweetalert2';
 export default function ListarUsuarios() {
   
   const  [listaUsuarios, setUsuarios] = useState([]);
+  const  [tablaUsuario, setTablaUsuario] = useState([]);
+  const  [busqueda, setBusqueda] = useState("");
 
   const getUsuarios = ()=>{
     Axios.get("http://localhost:3001/usuarios").then((response)=>{
       setUsuarios(response.data); 
+      setTablaUsuario(response.data);
     });
   }
 
@@ -36,7 +39,24 @@ export default function ListarUsuarios() {
       })
   }
 
-  getUsuarios();
+  const handleChange = e => {
+    setBusqueda(e.target.value);
+    filtrar(e.target.value);
+  }
+
+  const filtrar = (terminobusqueda) => {
+    var ResultadoBusqueda = tablaUsuario.filter((elemento) => {
+      if(elemento.nombre.toString().toLowerCase().includes(terminobusqueda.toLowerCase())){
+        return elemento;
+      }
+    })
+    setUsuarios(ResultadoBusqueda);
+  }
+
+  useEffect(() => {
+    getUsuarios();
+  }, [])
+
     return (
         
       <div>
@@ -45,12 +65,13 @@ export default function ListarUsuarios() {
          <div class="content-wrapper">
 
   {/* Page header */}
+  
   <div className="full-box page-header">
     <h3 className="text-left">
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE USUARIOS
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Listar usuario ingresados en el sistema.
     </p>
   </div>
   <div className="container-fluid">
@@ -61,12 +82,15 @@ export default function ListarUsuarios() {
       <li>
         <Link className="active" to="/ListarUsuarios"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE USUARIOS</Link>
       </li>
-      <li>
-        <Link to="/BuscarUsuario"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR USUARIO</Link>
-      </li>
     </ul>	
   </div>
   {/* Content */}
+  <div className="col-12 col-md-6">
+    <label htmlFor="usuario_dni" className="bmd-label-floating">Buscar</label>
+    <input onChange={handleChange} className=" form-control" value={busqueda} placeholder="Búsqueda por nombre"></input>
+  </div>
+  <br/>
+  <br/><br/>
   <div className="container-fluid">
     <div className="table-responsive">
       <table className="table table-ligth table-sm">

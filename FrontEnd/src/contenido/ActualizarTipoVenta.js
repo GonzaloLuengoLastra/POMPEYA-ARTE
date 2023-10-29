@@ -63,7 +63,7 @@ export default function ActualizarTipoVenta () {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; ACTUALIZAR TIPO VENTA
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Actualiza tipo de ventas del comprador.
     </p>
   </div>
   <div className="container-fluid">
@@ -73,9 +73,6 @@ export default function ActualizarTipoVenta () {
       </li>
       <li>
         <Link to="/ListarTipoVentas"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA TIPO VENTAS</Link>
-      </li>
-      <li>
-        <Link to="/BuscarTipoVenta"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR TIPO VENTA</Link>
       </li>
     </ul>	
   </div>     

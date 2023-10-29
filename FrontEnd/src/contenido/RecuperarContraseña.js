@@ -1,8 +1,47 @@
-import React, { Component } from 'react';
-import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useNavigate } from 'react-router-dom';
+import Axios from "axios";
 
-export default class RecuperarContraseña extends Component {
-  render() {
+export default function RecuperarContraseña() {
+
+  const [email, setEmail] = useState('');
+  const[errorEmail,setErrorEmail]=React.useState(0)
+  const [verificar, setVerificar] = useState('');
+  const navigate = useNavigate();
+
+  const cambiarEmail = (e) => {
+    const valueEmail = e.target.value;
+    const onliLetEmail = /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/g.test(valueEmail);
+
+    //Incorrecto
+    if(onliLetEmail === false){
+      setErrorEmail(1);
+    }
+
+    //Correcto
+    if(onliLetEmail === true){
+      setErrorEmail(0);
+    }
+
+    setEmail(valueEmail);
+  }
+
+  const verificarCorreo = () => {
+    Axios.post("http://localhost:3001/email",{
+      email: email
+    }).then((response) => {
+      if(response.data.message) {
+        setVerificar(response.data.message)
+      }else{
+        if(response.data[0].email){
+          navigate(`/NuevaContraseña/${response.data[0].id_usuario}`)
+        }else{
+          navigate("/RecuperarContraseña")
+        }
+      }
+    });
+  };
+
     return (
       <div>   
 <div>
@@ -76,7 +115,7 @@ export default class RecuperarContraseña extends Component {
           </div>
           <div className="u-row-container" style={{padding: 0, backgroundColor: 'transparent'}}>
             <div className="u-row" style={{margin: '0 auto', minWidth: 320, maxWidth: 600, overflowWrap: 'break-word', wordWrap: 'break-word', wordBreak: 'break-word', backgroundColor: '#161a39'}}>
-              <div style={{borderCollapse: 'collapse', display: 'table', width: '100%', height: '100%', backgroundColor: 'transparent'}}>
+              <div style={{borderCollapse: 'collapse', display: 'table', width: '100%', height: '100%', backgroundColor: 'orange'}}>
                 {/*[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-color: transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: #161a39;"><![endif]*/}
                 {/*[if (mso)|(IE)]><td align="center" width="600" style="width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;" valign="top"><![endif]*/}
                 <div className="u-col u-col-100" style={{maxWidth: 320, minWidth: 600, display: 'table-cell', verticalAlign: 'top'}}>
@@ -89,7 +128,7 @@ export default class RecuperarContraseña extends Component {
                               <table width="100%" cellPadding={0} cellSpacing={0} border={0}>
                                 <tbody><tr>
                                     <td style={{paddingRight: 0, paddingLeft: 0}} align="center">
-                                      <img align="center" border={0} src="../dist/img/logo-one.jpg" alt="Image" title="Image" style={{outline: 'none', textDecoration: 'none', msInterpolationMode: 'bicubic', clear: 'both', display: 'inline-block !important', border: 'none', height: 'auto', float: 'none', width: '10%', maxWidth: 58}} width={58} />
+                                      <img align="center" border={0} src="dist/img/SAP.png" alt="Image" title="Image" style={{outline: 'none', textDecoration: 'none', msInterpolationMode: 'bicubic', clear: 'both', display: 'inline-block !important', border: 'none', height: 'auto', float: 'none', width: '10%', maxWidth: 58}} width={58} />
                                     </td>
                                   </tr>
                                 </tbody></table>
@@ -143,18 +182,27 @@ export default class RecuperarContraseña extends Component {
                               {/*[if mso]><style>.v-button {background: transparent !important;}</style><![endif]*/}
                               <div align="center">
                                 {/*[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="" style="height:52px; v-text-anchor:middle; width:205px;" arcsize="2%"  stroke="f" fillcolor="#18163a"><w:anchorlock/><center style="color:#FFFFFF;font-family:'Lato',sans-serif;"><![endif]*/}  
-                                <input className='tamaño'>
+                                <input className='tamaño' onChange={cambiarEmail}>
                                 </input>
+                                {
+                                  (errorEmail === 1) && (
+                                    <p style={{color: 'red'}}>Ejemplo: pompeya@gmail.com</p>
+                                  )
+                                }
                                 <br></br>
                                 <br></br>
-                                <Link to="/ConfirmarContraseña" className="v-button" style={{boxSizing: 'border-box', display: 'inline-block', fontFamily: '"Lato",sans-serif', textDecoration: 'none', WebkitTextSizeAdjust: 'none', textAlign: 'center', color: '#FFFFFF', backgroundColor: '#18163a', borderRadius: 1, WebkitBorderRadius: 1, MozBorderRadius: 1, width: 'auto', maxWidth: '100%', overflowWrap: 'break-word', wordBreak: 'break-word', wordWrap: 'break-word', msoBorderAlt: 'none'}}>
-                                  <span style={{display: 'block', padding: '15px 40px', lineHeight: '120%'}}><span style={{fontSize: 18, lineHeight: '21.6px'}}>Enviar</span></span>
+                                <button disabled={errorEmail===1 }
+                                
+                                onClick={verificarCorreo} type='button' className="v-button" style={{boxSizing: 'border-box', display: 'inline-block', fontFamily: '"Lato",sans-serif', textDecoration: 'none', WebkitTextSizeAdjust: 'none', textAlign: 'center', color: '#FFFFFF', backgroundColor: 'grey', borderRadius: 1, WebkitBorderRadius: 1, MozBorderRadius: 1, width: 'auto', maxWidth: '100%', overflowWrap: 'break-word', wordBreak: 'break-word', wordWrap: 'break-word', msoBorderAlt: 'none'}}>
+                                  <span style={{display: 'block', padding: '15px 40px', lineHeight: '120%'}}><span style={{fontSize: 18, lineHeight: '21.6px'}}>Verificar</span></span>
+                                </button>
+                                <Link type="button" to="/" className="v-button" style={{boxSizing: 'border-box',marginLeft: 10, display: 'inline-block', fontFamily: '"Lato",sans-serif', textDecoration: 'none', WebkitTextSizeAdjust: 'none', textAlign: 'center', color: '#FFFFFF', backgroundColor: 'grey', borderRadius: 1, WebkitBorderRadius: 1, MozBorderRadius: 1, width: 'auto', maxWidth: '100%', overflowWrap: 'break-word', wordBreak: 'break-word', wordWrap: 'break-word', msoBorderAlt: 'none'}}>
+                                  <span style={{display: 'block', padding: '15px 40px', lineHeight: '120%'}}><span style={{fontSize: 18, lineHeight: '21.6px'}}>Cancelar</span></span>
                                 </Link>
-                                <Link to="/" className="v-button" style={{boxSizing: 'border-box',marginLeft: 10, display: 'inline-block', fontFamily: '"Lato",sans-serif', textDecoration: 'none', WebkitTextSizeAdjust: 'none', textAlign: 'center', color: '#FFFFFF', backgroundColor: '#18163a', borderRadius: 1, WebkitBorderRadius: 1, MozBorderRadius: 1, width: 'auto', maxWidth: '100%', overflowWrap: 'break-word', wordBreak: 'break-word', wordWrap: 'break-word', msoBorderAlt: 'none'}}>
-                                  <span style={{display: 'block', padding: '15px 40px', lineHeight: '120%'}}><span style={{fontSize: 18, lineHeight: '21.6px'}}>Volver</span></span>
-                                </Link>
+                                
                                 {/*[if mso]></center></v:roundrect><![endif]*/}
                               </div>
+                              <p style={{color: 'red', textAlign: 'center'}}>{verificar}</p>
                             </td>
                           </tr>
                         </tbody>
@@ -169,30 +217,7 @@ export default class RecuperarContraseña extends Component {
           </div>
           <br></br>
           
-          <div className="u-row-container" style={{padding: 0, backgroundColor: 'transparent'}}>
-            <div className="u-row" style={{margin: '0 auto', minWidth: 320, maxWidth: 600, overflowWrap: 'break-word', wordWrap: 'break-word', wordBreak: 'break-word', backgroundColor: '#18163a'}}>
-              <div style={{borderCollapse: 'collapse', display: 'table', width: '100%', height: '100%', backgroundColor: 'transparent'}}>
-                {/*[if (mso)|(IE)]><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding: 0px;background-color: transparent;" align="center"><table cellpadding="0" cellspacing="0" border="0" style="width:600px;"><tr style="background-color: #18163a;"><![endif]*/}
-                {/*[if (mso)|(IE)]><td align="center" width="300" style="width: 300px;padding: 20px 20px 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;" valign="top"><![endif]*/}
-                <div className="u-col u-col-50" style={{maxWidth: 320, minWidth: 300, display: 'table-cell', verticalAlign: 'top'}}>
-                  <div style={{height: '100%', width: '100% !important'}}>
-                    {/*[if (!mso)&(!IE)]><!*/}<div style={{height: '100%', padding: '20px 20px 0px', borderTop: '0px solid transparent', borderLeft: '0px solid transparent', borderRight: '0px solid transparent', borderBottom: '0px solid transparent'}}>{/*<![endif]*/}
-                      <table style={{fontFamily: '"Lato",sans-serif'}} role="presentation" cellPadding={0} cellSpacing={0} width="100%" border={0}>
-                        <br></br>
-                        <br></br>
-                        <br></br>
-                        <br></br>
-                      </table>
-                      {/*[if (!mso)&(!IE)]><!*/}</div>{/*<![endif]*/}
-                  </div>
-                </div>
-                {/*[if (mso)|(IE)]></td><![endif]*/}
-                {/*[if (mso)|(IE)]><td align="center" width="300" style="width: 300px;padding: 0px 0px 0px 20px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;" valign="top"><![endif]*/}
-                {/*[if (mso)|(IE)]></td><![endif]*/}
-                {/*[if (mso)|(IE)]></tr></table></td></tr></table><![endif]*/}
-              </div>
-            </div>
-          </div>
+          
 
           {/*[if (mso)|(IE)]></td></tr></table><![endif]*/}
         </td>
@@ -205,4 +230,3 @@ export default class RecuperarContraseña extends Component {
 </div>
     );
   }
-}

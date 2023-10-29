@@ -5,12 +5,25 @@ import NavBar from '../NavBar';
 import { useNavigate } from 'react-router-dom';
 import Axios from 'axios';
 import Swal from 'sweetalert2';
-import { useForm } from "react-hook-form";
 
 export default function NuevoPrecio () {
 
   const[valor,setValor]=React.useState('')
-  const {register, formState:{errors}, handleSubmit} = useForm();
+  const[valorError,setValorError]=React.useState(0)
+
+  const cambiarPrecio = (e) => {
+    const value = e.target.value;
+    const onliLet = /^[0-9]*$/g.test(value);
+    console.log("Solo numeros", onliLet)
+
+    if(onliLet === false){
+      setValorError(1);
+    }
+    if(onliLet === true){
+      setValorError(0);
+    }
+    setValor(value);
+  }
   const navigate = useNavigate();
 
   const guardarPrecio = (val) =>{
@@ -49,7 +62,7 @@ export default function NuevoPrecio () {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; NUEVO PRECIO
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Ingresar nuevo precio para obra de arte.
     </p>
   </div>
   <div className="container-fluid">
@@ -60,14 +73,11 @@ export default function NuevoPrecio () {
       <li>
         <Link to="/ListarPrecios"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE PRECIOS</Link>
       </li>
-      <li>
-        <Link to="/BuscarPrecio"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR PRECIO</Link>
-      </li>
     </ul>	
   </div>     
   {/* Content */}
   <div className="container-fluid">
-    <form onSubmit={handleSubmit(guardarPrecio)} action className="form-neon" autoComplete="off">
+    <form action className="form-neon" autoComplete="off">
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información del Precio</legend>
         <div className="container-fluid">
@@ -75,9 +85,14 @@ export default function NuevoPrecio () {
             <div className="col-12 col-md-5">
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Precio $</label>
-                <input type="number" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35}
-                onChange={(e)=>setValor(e.target.value)} 
+                <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35}
+                onChange={cambiarPrecio} 
                 />
+                {
+                  (valorError === 1) && (
+                    <p style={{color: 'red'}}>Solo ingrese números</p>
+                  )
+                }
               </div>
             </div>
           </div>
@@ -86,7 +101,7 @@ export default function NuevoPrecio () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button disabled={valorError===1} type='button' onClick={guardarPrecio} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

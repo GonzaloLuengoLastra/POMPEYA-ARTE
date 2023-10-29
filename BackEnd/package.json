@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@stripe/react-stripe-js": "^2.3.1",
+    "@stripe/stripe-js": "^2.1.7",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
@@ -23,6 +25,8 @@
     "moment": "^2.29.4",
     "multer": "^1.4.5-lts.1",
     "mysql": "^2.18.1",
-    "sequelize": "^6.32.1"
+    "nodemailer": "^6.9.7",
+    "sequelize": "^6.32.1",
+    "stripe": "^13.10.0"
   }
 }

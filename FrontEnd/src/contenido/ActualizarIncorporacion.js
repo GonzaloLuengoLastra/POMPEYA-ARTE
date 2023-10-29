@@ -16,7 +16,42 @@ export default function ActualizarIncorporacion () {
   const[descripcion,setDescripcion]=React.useState('')
   const[artista,setArtista]= React.useState('')
 
-  const {register, formState:{errors}, handleSubmit} = useForm();
+  const[errorValor,setErrorValor]=React.useState(0)
+    const[errorDescripcion,setErrorDescripcion]=React.useState(0)
+
+    const cambiarDescripcion= (e) => {
+      const valueDescripcion = e.target.value;
+      const onliLetDescripcion = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]*$/g.test(valueDescripcion);
+  
+      //Incorrecto
+      if(onliLetDescripcion === false){
+        setErrorDescripcion(1);
+      }
+
+      //Correcto
+      if(onliLetDescripcion === true){
+        setErrorDescripcion(0);
+      }
+
+      setDescripcion(valueDescripcion);
+    }
+
+    const cambiarValor = (e) => {
+      const valueValor = e.target.value;
+      const onliLetValor = /^[0-9]*$/g.test(valueValor);
+  
+      //Incorrecto
+      if(onliLetValor === false){
+        setErrorValor(1);
+      }
+
+      //Correcto
+      if(onliLetValor === true){
+        setErrorValor(0);
+      }
+
+      setVincorporacion(valueValor);
+    }
 
   React.useEffect(() => {
     Axios.get('http://localhost:3001/editIncor/'+id_incor)
@@ -77,7 +112,7 @@ export default function ActualizarIncorporacion () {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; ACTUALIZAR INCORPORACIÓN
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Actualiza Incorporación de artistas.
     </p>
   </div>
   <div className="container-fluid">
@@ -88,16 +123,13 @@ export default function ActualizarIncorporacion () {
       <li>
         <Link to="/ListarIncorporaciones"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE INCORPORACIONES</Link>
       </li>
-      <li>
-        <Link to="/BuscarIncorporacion"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR INCORPORACIÓN</Link>
-      </li>
     </ul>	
   </div>     
   {/* Page header */}
 
   {/* Content */}
   <div className="container-fluid">
-    <form onSubmit={handleSubmit(updateIncor)} action className="form-neon" autoComplete="off">
+    <form action className="form-neon" autoComplete="off">
     <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información de la Incorporación</legend>
         <div className="container-fluid">
@@ -105,34 +137,24 @@ export default function ActualizarIncorporacion () {
             <div className="col-12 col-md-5">
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Descripción</label>
-                <input type="text" defaultValue={descripcion} onChange={(e)=>setDescripcion(e.target.value)} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
-                {...register("direccion",{
-                  required:true,
-                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
-                })}
+                <input type="text" defaultValue={descripcion} onChange={cambiarDescripcion} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
                 />
                 {
-                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Descripción</span>)
-                }
-                {
-                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                  (errorDescripcion === 1) && (
+                    <p style={{color: 'red'}}>Carácter no permitido</p>
+                  )
                 }
               </div>
             </div>
             <div className="col-12 col-md-12">
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Valor</label>
-                <input type="number" defaultValue={vincorporacion} onChange={(e)=>setVincorporacion(e.target.value)}  className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
-                {...register("direccion",{
-                  required:true,
-                  pattern: /^[0-9]/
-                })}
+                <input type="text" defaultValue={vincorporacion} onChange={cambiarValor}  className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
                 />
                 {
-                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese un valor</span>)
-                }
-                {
-                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                  (errorValor === 1) && (
+                    <p style={{color: 'red'}}>Carácter no permitido</p>
+                  )
                 }
               </div>
             </div>
@@ -160,7 +182,7 @@ export default function ActualizarIncorporacion () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button disabled={errorDescripcion===1 || errorValor===1 } type="button" onClick={updateIncor} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
   </div>

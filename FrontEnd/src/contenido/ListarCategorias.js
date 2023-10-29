@@ -8,10 +8,13 @@ import Swal from "sweetalert2";
 export default function ListarCategorias() {
 
   const [categoria,setCategoria]= useState([]);
+  const  [tablaCategoria, setTablaCategoria] = useState([]);
+  const  [busqueda, setBusqueda] = useState("");
 
   const getCategorias = ()=>{
     Axios.get("http://localhost:3001/getCategorias").then((response)=>{
-      setCategoria(response.data); 
+      setCategoria(response.data);
+      setTablaCategoria(response.data); 
     });
   }
 
@@ -36,7 +39,23 @@ export default function ListarCategorias() {
     })
 }
 
+const handleChange = e => {
+  setBusqueda(e.target.value);
+  filtrar(e.target.value);
+}
+
+const filtrar = (terminobusqueda) => {
+  var ResultadoBusqueda = tablaCategoria.filter((elemento) => {
+    if(elemento.nombre_categoria.toString().toLowerCase().includes(terminobusqueda.toLowerCase())){
+      return elemento;
+    }
+  })
+  setCategoria(ResultadoBusqueda);
+}
+
+useEffect(() => {
   getCategorias();
+}, [])
 
     return (
         
@@ -51,7 +70,7 @@ export default function ListarCategorias() {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE PRODUCTOS
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+      Listar categoría de obras de arte.
     </p>
   </div>
   <div className="container-fluid">
@@ -62,12 +81,15 @@ export default function ListarCategorias() {
       <li>
         <Link className='active' to="/ListarCategorias"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE CATEGORÍAS</Link>
       </li>
-      <li>
-        <Link to="/BuscarCategoria"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR CATEGORÍA</Link>
-      </li>
     </ul>	
   </div>
   {/* Content */}
+  <div className="col-12 col-md-6">
+    <label htmlFor="usuario_dni" className="bmd-label-floating">Buscar</label>
+    <input onChange={handleChange} className=" form-control" value={busqueda} placeholder="Búsqueda por nombre"></input>
+  </div>
+  <br/>
+  <br/><br/>
   <div className="container-fluid">
     <div className="table-responsive">
       <table className="table table-ligth table-sm">

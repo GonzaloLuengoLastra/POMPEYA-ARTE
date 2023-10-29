@@ -4,14 +4,50 @@ import Header from '../Header';
 import NavBar from '../NavBar';
 import Axios from "axios";
 import Swal from 'sweetalert2';
-import { useForm } from "react-hook-form";
 
 export default function NuevaIncorporacion () {
   const navigate = useNavigate();
   const[vincorporacion,setVincorporacion]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
   const[artista,setArtista]= React.useState('')
-  const {register, formState:{errors}, handleSubmit} = useForm();
+
+  const[errorValor,setErrorValor]=React.useState(0)
+    const[errorDescripcion,setErrorDescripcion]=React.useState(0)
+
+    const cambiarDescripcion= (e) => {
+      const valueDescripcion = e.target.value;
+      const onliLetDescripcion = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]*$/g.test(valueDescripcion);
+  
+      //Incorrecto
+      if(onliLetDescripcion === false){
+        setErrorDescripcion(1);
+      }
+
+      //Correcto
+      if(onliLetDescripcion === true){
+        setErrorDescripcion(0);
+      }
+
+      setDescripcion(valueDescripcion);
+    }
+
+    const cambiarValor = (e) => {
+      const valueValor = e.target.value;
+      const onliLetValor = /^[0-9]*$/g.test(valueValor);
+  
+      //Incorrecto
+      if(onliLetValor === false){
+        setErrorValor(1);
+      }
+
+      //Correcto
+      if(onliLetValor === true){
+        setErrorValor(0);
+      }
+
+      setVincorporacion(valueValor);
+    }
+
 
   const[usuario,setUsuario]= React.useState([])
     React.useEffect(()=>{
@@ -61,7 +97,7 @@ export default function NuevaIncorporacion () {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; NUEVA INCORPORACIÓN
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+      Ingresar nueva incorporación de artista.
     </p>
   </div>
   <div className="container-fluid">
@@ -72,14 +108,11 @@ export default function NuevaIncorporacion () {
       <li>
         <Link to="/ListarIncorporaciones"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE INCORPORACIONES</Link>
       </li>
-      <li>
-        <Link to="/BuscarIncorporacion"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR INCORPORACIÓN</Link>
-      </li>
     </ul>	
   </div>     
   {/* Content */}
   <div className="container-fluid">
-    <form onSubmit={handleSubmit(guardarIncor)} action className="form-neon" autoComplete="off">
+    <form action className="form-neon" autoComplete="off">
       <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información de la Incorporación</legend>
         <div className="container-fluid">
@@ -87,34 +120,24 @@ export default function NuevaIncorporacion () {
             <div className="col-12 col-md-12">
               <div className="form-group">
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Descripción</label>
-                <input type="text" onChange={(e)=>setDescripcion(e.target.value)} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
-                {...register("direccion",{
-                  required:true,
-                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
-                })}
+                <input type="text" onChange={cambiarDescripcion} pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
                 />
                 {
-                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Descripción</span>)
-                }
-                {
-                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                  (errorDescripcion === 1) && (
+                    <p style={{color: 'red'}}>Carácter no permitido</p>
+                  )
                 }
               </div>
             </div>
             <div className="col-12 col-md-5">
               <div className="form-group">
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Valor Incorporación $</label>
-                <input type="number" onChange={(e)=>setVincorporacion(e.target.value)} className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
-                {...register("valor",{
-                  required:true,
-                  pattern: /^[0-9]/
-                })}
+                <input type="text" onChange={cambiarValor} className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35} 
                 />
                 {
-                  errors.valor?.type==="required" && (<span className='errors'>Ingrese una Valor</span>)
-                }
-                {
-                  errors.valor?.type==="pattern" && (<span className='errors'>Formato solo Números</span>)
+                  (errorValor === 1) && (
+                    <p style={{color: 'red'}}>Solo números</p>
+                  )
                 }
               </div>
             </div>
@@ -144,7 +167,8 @@ export default function NuevaIncorporacion () {
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;
-        <button className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
+        <button disabled={errorDescripcion===1 || errorValor===1 }
+         type='button' onClick={guardarIncor} className="btn btn-raised btn-info btn-sm"><i className="far fa-save" /> &nbsp; GUARDAR</button>
       </p>
     </form>
   </div>

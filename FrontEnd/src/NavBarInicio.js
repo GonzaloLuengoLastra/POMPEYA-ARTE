@@ -1,26 +1,85 @@
-import React, {Component, useState } from "react";
-import { Link } from 'react-router-dom';
+import React, {Component, useState, useEffect} from "react";
+import { Link, redirect, useNavigate } from 'react-router-dom';
+import Axios from "axios";
+import Swal from "sweetalert2";
 
-export default class NavBarInicio extends Component {
-  render() {
+
+export default function NavBarInicio() {
+    
+    const [loginStatus, setLoginStatus] = useState('');
+  const [privilegio, setPrivilegio] = useState();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    Axios.get("http://localhost:3001/login").then((response)=>{
+      setLoginStatus(response.data.user[0].nombre);
+      setPrivilegio(response.data.user[0].privilegio)
+    })
+  }, [])
+
+  const cerrarSesion = (val) =>{
+    Swal.fire({
+      title: 'Cerrar Sesión',
+      text: "¿Desea cerrar sesión?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Cerrar Sesión',
+      denyButtonText: `Cancelar`,
+    })
+    .then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        window.location.reload(true);
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+}
+
+  const verificar = (user) => {
+    if(!loginStatus){
+      return <Link to="/Login" ><p><span><i className="fa fa-user" /></span>Login</p></Link>
+    }
+    return <p style={{color: 'white'}}><span>Bienvenido(a) </span>{loginStatus}</p>
+  }
+
+  const verificar1 = (user) => {
+    if(!loginStatus){
+      return <Link to="/RegistrarUsuarioNormal"><p><span><i className="fa fa-pencil" /></span>Registrar</p></Link>
+    }
+    return <button type="button" href="/" onClick={cerrarSesion} style={{color: 'white', paddingLeft: '10px', backgroundColor: 'transparent', border: 'none'}}>Cerrar Sesión</button> 
+  }
+
+  const verificar3 = (user) => {
+    if(privilegio == 1 || privilegio == 2){
+      return <Link to="/Dashboard" style={{color: 'white', paddingLeft: '10px'}}>DashBoard</Link>
+    }
+    return <p><span><i className="fa fa-pencil" /></span></p>
+  }
     return (
+
+      
       <div>
 
         <section className="header-top">
     <div className="container">
       <div className="row">
         <div className="col-md-4">
+        {verificar(loginStatus)}
           <ul>
           </ul>
         </div>
         <div className="col-md-4">
           <div className="icon">
+            
           </div>
         </div>
         <div className="col-md-4">
           <div className="a-right">
-            <Link to="/Login" ><p><span><i className="fa fa-user" /></span>Login</p></Link>
-            <a href="#"><p><span><i className="fa fa-pencil" /></span>Registrar</p></a>
+            
+            {verificar1(loginStatus)}
+            {verificar3(loginStatus)}
+            
           </div>
         </div>
       </div>
@@ -48,7 +107,7 @@ export default class NavBarInicio extends Component {
         <div className="col-md-3">
           <br></br>
           <div className="logo">
-            <a href="/"><img src="dist/img/logo-one.jpg" alt/></a>
+            <img src="dist/img/SAP.png" style={{width: '200px', height: '200px'}}/>
           </div>
         </div>
         <div className="col-md-7">
@@ -68,6 +127,5 @@ export default class NavBarInicio extends Component {
     </div>
   </section>
       </div>
-    );
-  }
-}
+ );
+    }

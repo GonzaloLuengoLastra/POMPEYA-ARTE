@@ -4,7 +4,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
 import Swal from 'sweetalert2';
-import { useForm } from "react-hook-form";
 
 export default function ActualizarPrecio () {
 
@@ -13,7 +12,21 @@ export default function ActualizarPrecio () {
   const { id_precio } = useParams();
 
   const[valor,setValor]=React.useState('')
-  const {register, formState:{errors}, handleSubmit} = useForm();
+  const[valorError,setValorError]=React.useState(0)
+
+  const cambiarPrecio = (e) => {
+    const value = e.target.value;
+    const onliLet = /^[0-9]*$/g.test(value);
+    console.log("Solo numeros", onliLet)
+
+    if(onliLet === false){
+      setValorError(1);
+    }
+    if(onliLet === true){
+      setValorError(0);
+    }
+    setValor(value);
+  }
 
   useEffect(() => {
     axios.get('http://localhost:3001/editPrecio/'+id_precio)
@@ -59,7 +72,7 @@ export default function ActualizarPrecio () {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; ACTUALIZAR PRECIO
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Actualiza precios de las obras de arte.
     </p>
   </div>
   <div className="container-fluid">
@@ -70,16 +83,13 @@ export default function ActualizarPrecio () {
       <li>
         <Link to="/ListarPrecios"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE PRECIOS</Link>
       </li>
-      <li>
-        <Link to="/BuscarPrecio"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR PRECIO</Link>
-      </li>
     </ul>	
   </div>     
   {/* Page header */}
 
   {/* Content */}
   <div className="container-fluid">
-    <form onSubmit={handleSubmit(updatePrecio)} action className="form-neon" autoComplete="off">
+    <form action className="form-neon" autoComplete="off">
     <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información del Precio</legend>
         <div className="container-fluid">
@@ -89,17 +99,12 @@ export default function ActualizarPrecio () {
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Precio $</label>
                 <input type="number" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35} 
                 defaultValue={valor}
-                onChange={(e)=>setValor(e.target.value)}
-                {...register("rut",{
-                  required:true,
-                  pattern: /^[0-9]/
-                })}
+                onChange={cambiarPrecio}
                 /> 
                 {
-                  errors.rut?.type==="required" && (<span className='errors'>Ingrese un Precio</span>)
-                }
-                {
-                  errors.rut?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                  (valorError === 1) && (
+                    <p style={{color: 'red'}}>Solo números</p>
+                  )
                 }
               </div>
             </div>
@@ -108,7 +113,7 @@ export default function ActualizarPrecio () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button disabled={valorError===1} type="button" onClick={updatePrecio} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
   </div>

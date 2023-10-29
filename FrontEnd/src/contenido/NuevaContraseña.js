@@ -1,8 +1,88 @@
-import React, { Component } from 'react';
-import { BrowserRouter as Router, Link, Route, Routes } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Axios from "axios";
+import Swal from 'sweetalert2';
 
-export default class NuevaContraseña extends Component {
-  render() {
+export default function NuevaContraseña() {
+
+  const {id_usuario} = useParams();
+  const navigate = useNavigate();
+  const[errorNuevaContrasena,setErrorNuevaContrasena]= useState(0)
+  const[errorContrasena,setErrorContrasena]= useState(0)
+  const[vacio,errorVacio]= useState(0)
+  const [nuevaContrasena, setnuevaContrasena] = useState("");
+  const [Contrasena, setContrasena] = useState("");
+
+  const verificarContrasenas = () => {
+    if(Contrasena != nuevaContrasena){
+      return <p>Las contraseñas no coinciden</p>
+    }
+  } 
+
+  const cambiarNuevaContrasena = (e) => {
+    const valueNuevaContrasena = e.target.value;
+    const onliLetNuevaContrasena = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]*$/g.test(valueNuevaContrasena);
+
+    //Incorrecto
+    if(onliLetNuevaContrasena === false){
+      setErrorNuevaContrasena(1);
+    }
+
+    //Correcto
+    if(onliLetNuevaContrasena === true){
+      setErrorNuevaContrasena(0);
+    }
+
+    if(nuevaContrasena === true){
+      errorVacio(0)
+    }
+
+    setnuevaContrasena(valueNuevaContrasena);
+  }
+  const cambiarContrasena = (e) => {
+    const valueContrasena = e.target.value;
+    const onliLetContrasena = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9]*$/g.test(valueContrasena);
+
+    //Incorrecto
+    if(onliLetContrasena === false){
+      setErrorContrasena(1);
+    }
+
+    //Correcto
+    if(onliLetContrasena === true){
+      setErrorContrasena(0);
+    }
+
+    setContrasena(valueContrasena);
+  }
+
+  const guardarContrasena = (val) =>{
+    Swal.fire({
+      title: 'Restablecer contraseña',
+      text: "¿Desea restablecer la contraseña en el sistema?",
+      icon: 'warning',
+      showDenyButton: true,
+      confirmButtonText: 'Guardar',
+      denyButtonText: `Cancelar`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        Swal.fire('Contraseña restablecida!', '', 'success')
+        Axios.put("http://localhost:3001/restablecer/"+id_usuario, {
+          contrasena: Contrasena
+      }).then(()=>{
+        console.log("Contraseña restablecida");
+        
+      });
+      navigate("/Login");
+      } else if (result.isDenied) {
+        Swal.fire('Operación cancelada', '', 'info')
+      }
+    })
+  }
+
+  console.log(id_usuario)
+
     return (
       <div>
         <div>
@@ -139,20 +219,32 @@ export default class NuevaContraseña extends Component {
                               <div >
                                 {/*[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="" style="height:52px; v-text-anchor:middle; width:205px;" arcsize="2%"  stroke="f" fillcolor="#18163a"><w:anchorlock/><center style="color:#FFFFFF;font-family:'Lato',sans-serif;"><![endif]*/}  
                                 <label>Nueva Contraseña</label>
-                                <input type="password" className='tamaño'>
+                                <input required type="password" className='tamaño' onChange={cambiarContrasena}>
                                 </input>
+                                {
+                                  (errorContrasena === 1) && (
+                                    <p style={{color: 'red'}}>Carácter no permitido</p>
+                                  )
+                                }
                                 <br></br>
                                 <br></br>
                                 <label>Repetir Contraseña</label>
-                                <input type="password" className='tamaño'>
+                                <input required type="password" className='tamaño' onChange={cambiarNuevaContrasena}>
                                 </input>
+                                {
+                                  (errorNuevaContrasena === 1) && (
+                                    <p style={{color: 'red'}}>Carácter no permitido</p>
+                                  )
+                                }
+                                <p style={{color: 'red'}}>{verificarContrasenas()}</p>
                                 <br></br>
                                 <br></br>
-                                <Link to="/" className="v-button" style={{boxSizing: 'border-box', display: 'inline-block', fontFamily: '"Lato",sans-serif', textDecoration: 'none', WebkitTextSizeAdjust: 'none', textAlign: 'center', color: '#FFFFFF', backgroundColor: '#18163a', borderRadius: 1, WebkitBorderRadius: 1, MozBorderRadius: 1, width: 'auto', maxWidth: '100%', overflowWrap: 'break-word', wordBreak: 'break-word', wordWrap: 'break-word', msoBorderAlt: 'none'}}>
-                                  <span style={{display: 'block', padding: '15px 40px', lineHeight: '120%'}}><span style={{fontSize: 18, lineHeight: '21.6px'}}>Confirmar</span></span>
-                                </Link>
-                                <Link to="/ConfirmarContraseña" className="v-button" style={{boxSizing: 'border-box',marginLeft: 10, display: 'inline-block', fontFamily: '"Lato",sans-serif', textDecoration: 'none', WebkitTextSizeAdjust: 'none', textAlign: 'center', color: '#FFFFFF', backgroundColor: '#18163a', borderRadius: 1, WebkitBorderRadius: 1, MozBorderRadius: 1, width: 'auto', maxWidth: '100%', overflowWrap: 'break-word', wordBreak: 'break-word', wordWrap: 'break-word', msoBorderAlt: 'none'}}>
-                                  <span style={{display: 'block', padding: '15px 40px', lineHeight: '120%'}}><span style={{fontSize: 18, lineHeight: '21.6px'}}>Volver</span></span>
+                                <button onClick={guardarContrasena} type="button" disabled={errorContrasena===1 || errorNuevaContrasena===1}
+                                 className="v-button" style={{boxSizing: 'border-box', display: 'inline-block', fontFamily: '"Lato",sans-serif', textDecoration: 'none', WebkitTextSizeAdjust: 'none', textAlign: 'center', color: '#FFFFFF', backgroundColor: '#18163a', borderRadius: 1, WebkitBorderRadius: 1, MozBorderRadius: 1, width: 'auto', maxWidth: '100%', overflowWrap: 'break-word', wordBreak: 'break-word', wordWrap: 'break-word', msoBorderAlt: 'none'}}>
+                                  <span style={{display: 'block', padding: '15px 40px', lineHeight: '120%'}}><span style={{fontSize: 18, lineHeight: '21.6px'}}>Restablecer</span></span>
+                                </button>
+                                <Link to="/RecuperarContraseña" className="v-button" style={{boxSizing: 'border-box',marginLeft: 10, display: 'inline-block', fontFamily: '"Lato",sans-serif', textDecoration: 'none', WebkitTextSizeAdjust: 'none', textAlign: 'center', color: '#FFFFFF', backgroundColor: '#18163a', borderRadius: 1, WebkitBorderRadius: 1, MozBorderRadius: 1, width: 'auto', maxWidth: '100%', overflowWrap: 'break-word', wordBreak: 'break-word', wordWrap: 'break-word', msoBorderAlt: 'none'}}>
+                                  <span style={{display: 'block', padding: '15px 40px', lineHeight: '120%'}}><span style={{fontSize: 18, lineHeight: '21.6px'}}>Cancelar</span></span>
                                 </Link>
                                 {/*[if mso]></center></v:roundrect><![endif]*/}
                               </div>
@@ -179,4 +271,4 @@ export default class NuevaContraseña extends Component {
       </div>
     );
   }
-}
+

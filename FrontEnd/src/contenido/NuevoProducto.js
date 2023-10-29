@@ -77,6 +77,9 @@ export default function NuevoProducto() {
     }
 
     const res = await axios.post("http://localhost:3001/registrarProducto", formdata, config)
+    Swal.fire('Producto guardado!', '', 'success')
+    navigate("/ListarProductos")
+
     if(res.data.status == 201){
       navigate("/ListarProductos")
     }else{
@@ -131,7 +134,7 @@ export default function NuevoProducto() {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; NUEVO PRODUCTO
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Ingresar nuevo producto a sala de exhibición.
     </p>
   </div>
   <div className="container-fluid">
@@ -141,9 +144,6 @@ export default function NuevoProducto() {
       </li>
       <li>
         <Link to="/ListarProductos"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE PRODUCTOS</Link>
-      </li>
-      <li>
-        <Link to="/BuscarProducto"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR PRODUCTO</Link>
       </li>
     </ul>	
   </div>     
@@ -255,6 +255,7 @@ export default function NuevoProducto() {
           </div>
         </div>
       </fieldset>
+      <br></br>
       <p className="text-center" style={{marginTop: 40}}>
         <button type="reset" className="btn btn-raised btn-secondary btn-sm"><i className="fas fa-paint-roller" /> &nbsp; LIMPIAR</button>
         &nbsp; &nbsp;

@@ -4,7 +4,6 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '../Header';
 import NavBar from '../NavBar';
 import Swal from 'sweetalert2';
-import { useForm } from "react-hook-form";
 
 export default function ActualizarSala () {
 
@@ -14,7 +13,43 @@ export default function ActualizarSala () {
 
   const[nsala,setNsala]=React.useState('')
   const[descripcion,setDescripcion]=React.useState('')
-  const {register, formState:{errors}, handleSubmit} = useForm();
+
+  const[errorNombre,setErrorNombre]=React.useState(0)
+  const[errorDescripcion,setErrorDescripcion]=React.useState(0)
+
+    const cambiarDescripcion= (e) => {
+      const valueDescripcion = e.target.value;
+      const onliLetDescripcion = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]*$/g.test(valueDescripcion);
+  
+      //Incorrecto
+      if(onliLetDescripcion === false){
+        setErrorDescripcion(1);
+      }
+
+      //Correcto
+      if(onliLetDescripcion === true){
+        setErrorDescripcion(0);
+      }
+
+      setDescripcion(valueDescripcion);
+    }
+
+    const cambiarNombre = (e) => {
+      const valueNombre = e.target.value;
+      const onliLetNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9 ]*$/g.test(valueNombre);
+  
+      //Incorrecto
+      if(onliLetNombre === false){
+        setErrorNombre(1);
+      }
+
+      //Correcto
+      if(onliLetNombre === true){
+        setErrorNombre(0);
+      }
+
+      setNsala(valueNombre);
+    }
 
   useEffect(() => {
     axios.get('http://localhost:3001/editSala/'+id_sala)
@@ -63,7 +98,7 @@ export default function ActualizarSala () {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; ACTUALIZAR SALA
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Actualiza salas para exhibición de las obras de arte.
     </p>
   </div>
   <div className="container-fluid">
@@ -74,16 +109,13 @@ export default function ActualizarSala () {
       <li>
         <Link to="/ListarSalas"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE SALAS</Link>
       </li>
-      <li>
-        <Link to="/BuscarSala"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR SALA</Link>
-      </li>
     </ul>	
   </div>     
   {/* Page header */}
 
   {/* Content */}
   <div className="container-fluid">
-    <form onSubmit={handleSubmit(updateSala)} action className="form-neon" autoComplete="off">
+    <form action className="form-neon" autoComplete="off">
     <fieldset>
         <legend><i className="far fa-address-card" /> &nbsp; Información de la Sala de Exhibición</legend>
         <div className="container-fluid">
@@ -93,18 +125,13 @@ export default function ActualizarSala () {
                 <label htmlFor="usuario_nombre" className="bmd-label-floating">Nombre Sala</label>
                 <input type="text" pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}" className="form-control" name="usuario_nombre_reg" id="usuario_nombre" maxLength={35}
                 defaultValue={nsala}
-                onChange={(e)=>setNsala(e.target.value)} 
-                {...register("nombre",{
-                  required:true,
-                  pattern: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{1,35}/
-                })}
+                onChange={cambiarNombre} 
               />
               {
-                errors.nombre?.type==="required" && (<span className='errors'>Ingrese un Nombre</span>)
-              }
-              {
-                errors.nombre?.type==="pattern" && (<span className='errors'>Formato de solo letras</span>)
-              }
+                  (errorNombre === 1) && (
+                    <p style={{color: 'red'}}>Carácter no permitido</p>
+                  )
+                }
               </div>
             </div>
             <div className="col-12 col-md-12">
@@ -112,17 +139,12 @@ export default function ActualizarSala () {
                 <label htmlFor="usuario_apellido" className="bmd-label-floating">Descripción</label>
                 <input type="text" className="form-control" name="usuario_apellido_reg" id="usuario_apellido" maxLength={35}
                 defaultValue={descripcion}
-                onChange={(e)=>setDescripcion(e.target.value)} 
-                {...register("direccion",{
-                  required:true,
-                  pattern: /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑ().,#\- ]{1,190}/
-                })}
+                onChange={cambiarDescripcion} 
                 />
                 {
-                  errors.direccion?.type==="required" && (<span className='errors'>Ingrese una Descripción</span>)
-                }
-                {
-                  errors.direccion?.type==="pattern" && (<span className='errors'>Carácter no permitido</span>)
+                  (errorDescripcion === 1) && (
+                    <p style={{color: 'red'}}>Carácter no permitido</p>
+                  )
                 }
               </div>
             </div>
@@ -131,7 +153,7 @@ export default function ActualizarSala () {
         </div>
       </fieldset>
       <p className="text-center" style={{marginTop: 40}}>
-        <button className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
+        <button disabled={errorDescripcion===1 || errorNombre===1 } type="button" onClick={updateSala} className="btn btn-raised btn-success btn-sm"><i className="fas fa-sync-alt" /> &nbsp; ACTUALIZAR</button>
       </p>
     </form>
 

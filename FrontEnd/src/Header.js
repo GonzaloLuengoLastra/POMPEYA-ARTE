@@ -1,7 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import Cookie from 'js-cookie'
+import {Link} from 'react-router-dom';
 
 export default function Header (){
+
+  const logOut = (u) => {
+    Cookie.remove(u)
+  }
 
   const navigate = useNavigate();
   const cerrarSesion = (val) =>{
@@ -15,6 +21,7 @@ export default function Header (){
     }).then((result) => {
       /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
+        logOut(Cookie.get('userId'));
         Swal.fire('Lo esperamos!', '', 'success')
         navigate('/Login')
       } else if (result.isDenied) {
@@ -39,6 +46,11 @@ export default function Header (){
         <a className="nav-link" data-widget="fullscreen" href="#" role="button">
           <i className="fas fa-expand-arrows-alt" />
         </a>
+      </li>
+      <li className="nav-item">
+        <Link className="nav-link" to="/" role="button">
+        <i class="fa-sharp fa-solid fa-lock"></i>
+        </Link>
       </li>
       <li className="nav-item">
         <button onClick={cerrarSesion} className="nav-link" data-widget="" role="button">

@@ -8,10 +8,13 @@ import Swal from "sweetalert2";
 export default function ListarPrecios () {
 
   const [precio,setPrecios]= useState([]);
+  const  [tablaPrecio, setTablaPrecio] = useState([]);
+  const  [busqueda, setBusqueda] = useState("");
 
   const getPrecio = ()=>{
     Axios.get("http://localhost:3001/getPrecios").then((response)=>{
       setPrecios(response.data); 
+      setTablaPrecio(response.data);
     });
   }
 
@@ -36,7 +39,23 @@ export default function ListarPrecios () {
     })
 }
 
+const handleChange = e => {
+  setBusqueda(e.target.value);
+  filtrar(e.target.value);
+}
+
+const filtrar = (terminobusqueda) => {
+  var ResultadoBusqueda = tablaPrecio.filter((elemento) => {
+    if(elemento.cantida_precio.toString().toLowerCase().includes(terminobusqueda.toLowerCase())){
+      return elemento;
+    }
+  })
+  setPrecios(ResultadoBusqueda);
+}
+
+useEffect(() => {
   getPrecio();
+}, [])
 
     return (
         
@@ -51,7 +70,7 @@ export default function ListarPrecios () {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE PRECIOS
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Listar precio de obras de arte.
     </p>
   </div>
   <div className="container-fluid">
@@ -62,12 +81,15 @@ export default function ListarPrecios () {
       <li>
         <Link className='active' to="/ListarPrecios"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE PRECIOS</Link>
       </li>
-      <li>
-        <Link to="/BuscarPrecio"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR PRECIO</Link>
-      </li>
     </ul>	
   </div>
   {/* Content */}
+  <div className="col-12 col-md-6">
+    <label htmlFor="usuario_dni" className="bmd-label-floating">Buscar</label>
+    <input onChange={handleChange} className=" form-control" value={busqueda} placeholder="Búsqueda por nombre"></input>
+  </div>
+  <br/>
+  <br/><br/>
   <div className="container-fluid">
     <div className="table-responsive">
       <table className="table table-ligth table-sm">

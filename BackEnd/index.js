@@ -6,6 +6,7 @@ const mysql = require("mysql");
 const cors = require("cors");
 const bcryp = require("bcrypt");
 const saltRounds = 10;
+const nodemailer = require('nodemailer');
 require("./db/conn");
 
 const router = require("./Routes/routes")
@@ -19,7 +20,7 @@ const session = require('express-session');
 app.use("/uploads",express.static("./uploads"))
 app.use(router)
 app.use(cors({
-    /*origin: ["http://localhost:3000"],*/
+    origin: ["http://localhost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
@@ -47,7 +48,48 @@ const db = mysql.createConnection({
     database: "pompeya"
 });
 
+//---------------recuperar contraseña-------------------
+app.post("/email", (req, res) => {
+    const email = req.body.email;
 
+    db.query("SELECT * FROM usuarios WHERE email = ?;",
+    email,
+    (err, result) => {
+        if(err){
+            res.send({ err: err});
+        }
+        if(result.length > 0){
+            res.send(result);
+        }else{
+            res.send({message: "El correo no existe en el sistema"});
+        }
+    })
+});
+
+app.put("/restablecer/:id_usuario", (req, res) => {
+    const id_usuario = req.params.id_usuario;
+    const constrasena = req.body.contrasena;
+
+    bcryp.hash(constrasena, saltRounds, (err, hash) => {
+        if(err){
+            console.log(err);
+        }
+
+        db.query('UPDATE usuarios SET contrasena = ? WHERE id_usuario = ?', 
+        [hash, id_usuario]),
+        (err, result) =>{
+            if(err){
+                console.log(err);
+            }else{
+                res.send(result);
+            }
+        };
+    })
+
+    
+});
+
+//--------------fin recuperar contraseña---------------
 
 app.get("/login", (req, res) => {
     if(req.session.user) {
@@ -168,6 +210,17 @@ app.get("/getProductos", (req, res) => {
     }
 )});
 
+app.get("/productoVenta", (req, res) => {
+    db.query('SELECT p.id_producto, p.estado_producto, p.fecha_producto, p.nombre_producto, p.imagen_producto, pr.cantida_precio, c.nombre_categoria, u.nombre, s.nombre_sala FROM productos p INNER JOIN precios pr ON p.id_precio=pr.id_precio INNER JOIN categorias c ON p.id_categoria=c.id_categoria INNER JOIN usuarios u ON p.id_usuario=u.id_usuario INNER JOIN salas s ON p.id_sala=s.id_sala',
+    (err, result) =>{
+        if(err){
+            console.log(err);
+        }else{
+            res.send(result);
+        }
+    }
+)});
+
 //Obtener usuarios mediante id
 app.get("/editProducto/:id_producto", (req, res) => {
     const id_producto = req.params.id_producto;
@@ -177,6 +230,26 @@ app.get("/editProducto/:id_producto", (req, res) => {
         return res.json(result);
     })
 });
+
+app.get("/verProducto/:id_producto", (req, res) => {
+    const id_producto = req.params.id_producto;
+    const sql = "SELECT p.id_producto, p.fecha_producto, p.nombre_producto, p.imagen_producto, pr.cantida_precio, c.nombre_categoria, u.nombre, u.apellido, s.nombre_sala FROM productos p INNER JOIN precios pr ON p.id_precio=pr.id_precio INNER JOIN categorias c ON p.id_categoria=c.id_categoria INNER JOIN usuarios u ON p.id_usuario=u.id_usuario INNER JOIN salas s ON p.id_sala=s.id_sala WHERE p.id_producto=?";
+    db.query(sql, [id_producto], (err, result) =>{
+        if(err) return res.json({Error: err});
+        return res.json(result);
+    })
+});
+
+app.get("/getProductoVenta", (req, res) => {
+    db.query('SELECT * FROM productos',
+    (err, result) =>{
+        if(err){
+            console.log(err);
+        }else{
+            res.send(result);
+        }
+    }
+)});
 
 app.put("/updateProducto/:id_producto", (req, res) => { 
     const id_producto = req.params.id_producto;
@@ -190,6 +263,21 @@ app.put("/updateProducto/:id_producto", (req, res) => {
 
     db.query('UPDATE productos SET nombre_producto = ?, fecha_producto = ?, imagen_producto = ?, id_usuario = ?, id_categoria = ?, id_precio = ?, id_sala = ? WHERE id_producto = ?', 
     [nombre_producto, fecha_producto, imagen_producto, id_usuario, id_categoria, id_precio, id_sala, id_producto]),
+    (err, result) =>{
+        if(err){
+            console.log(err);
+        }else{
+            res.send(result);
+        }
+    };
+});
+
+app.put("/updateEstado/:id_producto", (req, res) => { 
+    const id_producto = req.params.id_producto;
+    const estado = req.body.estado_producto;
+
+    db.query('UPDATE productos SET  estado_producto = ? WHERE id_producto = ?', 
+    [estado, id_producto]),
     (err, result) =>{
         if(err){
             console.log(err);
@@ -813,7 +901,82 @@ app.put("/updateContrato/:id_contrato", (req, res) => {
     };
 });
 
+
+
 //---------------------Fin Contrato--------------------------
+
+//---------------------Comienzo Venta--------------------------
+app.post("/guardarVenta", (req, res) => { 
+    const precio = req.body.precio_venta;
+    const ganancia = req.body.ganancia_venta;
+    const id_producto = req.body.id_producto;
+    const id_tipo_pago = req.body.id_tipo_pago;
+    const id_usuario = req.body.id_usuario;
+    const iva = req.body.IVA;
+
+    db.query('INSERT INTO ventas(precio_venta, ganancia_venta, id_producto, id_tipo_pago, id_usuario, IVA) VALUES(?,?,?,?,?,?)', 
+    [precio,ganancia,id_producto,id_tipo_pago, id_usuario, iva]),
+    (err, result) =>{
+        if(err){
+            console.log(err);
+        }else{
+            res.send(result);
+        }
+    };
+});
+
+app.get("/getVenta", (req, res) => {
+    db.query('SELECT * FROM ventas',
+    (err, result) =>{
+        if(err){
+            console.log(err);
+        }else{
+            res.send(result);
+        }
+    }
+)});
+
+app.get("/editVenta/:id_venta", (req, res) => {
+    const id_venta = req.params.id_venta;
+    const sql = "SELECT * FROM ventas WHERE id_venta=?";
+    db.query(sql, [id_venta], (err, result) =>{
+        if(err) return res.json({Error: err});
+        return res.json(result);
+    })
+});
+
+app.delete("/deleteVenta/:id_venta", (req, res) => {
+    const id_venta = req.params.id_venta;
+
+    db.query('DELETE FROM ventas WHERE id_venta=?',id_venta,
+    (err, result) =>{
+        if(err){
+            console.log(err);
+        }else{
+            res.send(result);
+        }
+    });
+});
+
+app.put("/updateVenta/:id_venta", (req, res) => { 
+    const id_venta = req.params.id_venta;
+    const precio = req.body.precio_venta;
+    const ganancia = req.body.ganancia_venta;
+    const id_producto = req.body.id_producto;
+    const id_tipo_pago = req.body.id_tipo_pago;
+
+    db.query('UPDATE ventas SET precio_venta = ?, ganancia_venta = ?, id_producto = ?, id_tipo_pago = ? WHERE id_venta = ?', 
+    [precio,ganancia,id_producto,id_tipo_pago,id_venta]),
+    (err, result) =>{
+        if(err){
+            console.log(err);
+        }else{
+            res.send(result);
+        }
+    };
+});
+
+//---------------------Fin Ventas--------------------------
 
 //---------------------Comienzo del Count--------------------------
 

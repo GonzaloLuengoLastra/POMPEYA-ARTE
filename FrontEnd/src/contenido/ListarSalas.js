@@ -8,10 +8,13 @@ import Swal from "sweetalert2";
 export default function ListarSalas () {
  
   const [salas,setSalas]= useState([]);
+  const  [tablaSalas, setTablaSalas] = useState([]);
+  const  [busqueda, setBusqueda] = useState("");
 
   const getSalas = ()=>{
     Axios.get("http://localhost:3001/getSalas").then((response)=>{
       setSalas(response.data); 
+      setTablaSalas(response.data);
     });
   }
 
@@ -36,7 +39,24 @@ export default function ListarSalas () {
     })
 }
 
+const handleChange = e => {
+  setBusqueda(e.target.value);
+  filtrar(e.target.value);
+}
+
+const filtrar = (terminobusqueda) => {
+  var ResultadoBusqueda = tablaSalas.filter((elemento) => {
+    if(elemento.nombre_sala.toString().toLowerCase().includes(terminobusqueda.toLowerCase())){
+      return elemento;
+    }
+  })
+  setSalas(ResultadoBusqueda);
+}
+
+useEffect(() => {
   getSalas();
+}, [])
+
     return (
         
       <div>
@@ -50,7 +70,7 @@ export default function ListarSalas () {
       <i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE SALAS
     </h3>
     <p className="text-justify">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Suscipit nostrum rerum animi natus beatae ex. Culpa blanditiis tempore amet alias placeat, obcaecati quaerat ullam, sunt est, odio aut veniam ratione.
+    Listar salas de las obras de arte.
     </p>
   </div>
   <div className="container-fluid">
@@ -61,12 +81,15 @@ export default function ListarSalas () {
       <li>
         <Link className='active' to="/ListarSalas"><i className="fas fa-clipboard-list fa-fw" /> &nbsp; LISTA DE SALAS</Link>
       </li>
-      <li>
-        <Link to="/BuscarSala"><i className="fas fa-search fa-fw" /> &nbsp; BUSCAR SALA</Link>
-      </li>
     </ul>	
   </div>
   {/* Content */}
+  <div className="col-12 col-md-6">
+    <label htmlFor="usuario_dni" className="bmd-label-floating">Buscar</label>
+    <input onChange={handleChange} className=" form-control" value={busqueda} placeholder="Búsqueda por nombre"></input>
+  </div>
+  <br/>
+  <br/><br/>
   <div className="container-fluid">
     <div className="table-responsive">
       <table className="table table-ligth table-sm">
